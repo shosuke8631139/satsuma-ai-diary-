@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薩摩AI修行日誌 | Episode #2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep:       #0b1a10;
+            --bg-card:       rgba(18, 52, 32, 0.78);
+            --emerald:       #1EEAAE;
+            --emerald-dim:   rgba(30, 234, 174, 0.15);
+            --emerald-glow:  rgba(30, 234, 174, 0.45);
+            --amber:         #F5A623;
+            --amber-dim:     rgba(245, 166, 35, 0.12);
+            --text-primary:  #E8F5F0;
+            --text-muted:    rgba(232, 245, 240, 0.5);
+            --border:        rgba(30, 234, 174, 0.22);
+            --grid-color:    rgba(30, 234, 174, 0.05);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─── Grid overlay ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ─── Noise texture ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        /* ─── Ambient glows ─── */
+        .ambient-1 {
+            position: fixed;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(30,234,174,0.08) 0%, transparent 70%);
+            top: -200px; left: -200px;
+            pointer-events: none; z-index: 0;
+        }
+        .ambient-2 {
+            position: fixed;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(30,234,174,0.06) 0%, transparent 70%);
+            bottom: -150px; right: -100px;
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ─── Layout wrapper ─── */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* ─── Glass card ─── */
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+
+        .glass:hover {
+            border-color: rgba(0, 212, 160, 0.35);
+        }
+
+        /* ─── Glow border ─── */
+        .glow-border {
+            border: 1px solid var(--emerald);
+            box-shadow: 0 0 20px var(--emerald-glow), inset 0 0 20px rgba(30,234,174,0.03);
+        }
+
+        /* ─── Section label ─── */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .section-label::before {
+            content: '';
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--emerald), transparent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .section-label span {
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            color: var(--emerald);
+            text-transform: uppercase;
+        }
+
+        /* ─── Badge ─── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            padding: 5px 14px;
+            border-radius: 100px;
+            border: 1px solid;
+            text-transform: uppercase;
+        }
+        .badge-emerald {
+            color: var(--emerald);
+            border-color: var(--emerald);
+            background: var(--emerald-dim);
+        }
+        .badge-amber {
+            color: var(--amber);
+            border-color: var(--amber);
+            background: var(--amber-dim);
+        }
+        .badge-red {
+            color: #FF6B6B;
+            border-color: #FF6B6B;
+            background: rgba(255,107,107,0.12);
+        }
+
+        /* ─── HEADER ─── */
+        .header-section {
+            position: relative;
+            padding: 48px 40px 40px;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 32px;
+            background: linear-gradient(135deg, rgba(18,52,32,0.97) 0%, rgba(10,24,14,0.99) 100%);
+            border: 1px solid var(--border);
+        }
+        .header-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(30,234,174,0.07) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .header-scanline {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--emerald), transparent);
+            animation: scanline-sweep 3s ease-in-out infinite;
+        }
+        @keyframes scanline-sweep {
+            0%   { opacity: 0; transform: translateX(-100%); }
+            50%  { opacity: 1; }
+            100% { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* ─── CHARACTER DISPLAY ─── */
+        .character-stage {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .character-glow-ring {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px; height: 30px;
+            background: radial-gradient(ellipse, var(--emerald-glow) 0%, transparent 70%);
+            filter: blur(8px);
+            transition: all 0.5s ease;
+        }
+        .character-img-wrap {
+            position: relative;
+            width: 180px;
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .character-img-wrap::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 80%, var(--emerald-dim) 0%, transparent 60%);
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        #haru-main {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            filter: drop-shadow(0 0 20px var(--emerald-glow));
+            position: relative;
+            z-index: 1;
+        }
+        #haru-main.flash {
+            transform: scale(1.08);
+        }
+
+        /* ─── SLIDER ─── */
+        .slider-section {
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+        .level-meter-wrap {
+            position: relative;
+            padding: 4px 0;
+        }
+        .level-ticks {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .level-ticks span {
+            font-size: 10px;
+            font-weight: 900;
+            color: var(--text-muted);
+            transition: color 0.3s, text-shadow 0.3s;
+            width: 20px;
+            text-align: center;
+        }
+        .level-ticks span.active {
+            color: var(--emerald);
+            text-shadow: 0 0 8px var(--emerald-glow);
+        }
+
+        /* Custom slider */
+        input[type="range"]#level-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(30,234,174,0.1);
+            outline: none;
+            cursor: pointer;
+            position: relative;
+        }
+        input[type="range"]#level-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-deep);
+            border: 2px solid var(--emerald);
+            box-shadow: 0 0 12px var(--emerald-glow), 0 0 24px var(--emerald-glow);
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        input[type="range"]#level-slider::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 20px var(--emerald), 0 0 40px var(--emerald-glow);
+            transform: scale(1.15);
+        }
+        input[type="range"]#level-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-deep);
+            border: 2px solid var(--emerald);
+            box-shadow: 0 0 12px var(--emerald-glow);
+            cursor: pointer;
+        }
+
+        .slider-track-fill {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--emerald), rgba(30,234,174,0.6));
+            transition: width 0.3s ease;
+            pointer-events: none;
+        }
+
+        .level-readout {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .lv-num {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--emerald);
+            text-shadow: 0 0 30px var(--emerald-glow), 0 0 60px rgba(30,234,174,0.2);
+            transition: text-shadow 0.5s, color 0.3s;
+            font-feature-settings: "tnum";
+        }
+        .lv-label {
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .lv-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 6px;
+            transition: color 0.3s;
+        }
+
+        /* ─── CYCLE CARDS ─── */
+        .cycle-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        @media (min-width: 640px) {
+            .cycle-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .cycle-card {
+            padding: 24px 16px;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            cursor: default;
+            text-align: center;
+        }
+        .cycle-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(30,234,174,0.4);
+            box-shadow: 0 12px 40px rgba(30,234,174,0.12);
+        }
+        .cycle-card.active {
+            border-color: var(--emerald);
+            box-shadow: 0 0 24px var(--emerald-glow), 0 12px 40px rgba(30,234,174,0.15);
+            background: linear-gradient(135deg, rgba(30,234,174,0.08) 0%, rgba(18,52,32,0.85) 100%);
+        }
+        .cycle-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+        }
+        .cycle-card-type {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .cycle-card.active .cycle-card-type {
+            color: var(--emerald);
+        }
+        .cycle-card-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        .cycle-card.active .cycle-card-title {
+            color: var(--emerald);
+        }
+        .cycle-card-sub {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ─── TRAINING LOG ─── */
+        .training-log {
+            padding: 40px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .training-log::before {
+            content: 'TRAINING LOG';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(30,234,174,0.03);
+            letter-spacing: 0.1em;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .training-log h3 {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .training-log p {
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(232, 245, 240, 0.75);
+            line-height: 2.1;
+            text-indent: 1em;
+            margin-bottom: 16px;
+        }
+        .quote-block {
+            background: rgba(30,234,174,0.05);
+            border-left: 3px solid var(--emerald);
+            border-radius: 0 12px 12px 0;
+            padding: 20px 24px;
+            margin: 24px 0;
+            position: relative;
+        }
+        .quote-block::before {
+            content: '❝';
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            font-size: 28px;
+            color: var(--emerald);
+            opacity: 0.5;
+            line-height: 1;
+        }
+        .quote-block p {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--emerald);
+            line-height: 1.8;
+            text-indent: 0;
+            margin: 0;
+        }
+
+        /* ─── ARSENAL ─── */
+        .arsenal-section {
+            margin-bottom: 32px;
+        }
+        .tool-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .tool-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            border-radius: 100px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+            transition: all 0.25s;
+            cursor: default;
+        }
+        .tool-chip:hover {
+            border-color: var(--emerald);
+            box-shadow: 0 0 16px var(--emerald-dim);
+            transform: translateY(-2px);
+        }
+        .tool-chip-icon { font-size: 20px; }
+        .tool-chip-name {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--text-primary);
+        }
+        .tool-chip-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 2px;
+            letter-spacing: 0.08em;
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 500px) {
+            .strategy-grid { grid-template-columns: 1fr; }
+        }
+        .strategy-card {
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        .strategy-card:hover { transform: translateY(-3px); }
+        .strategy-card.type-ai {
+            background: rgba(30,234,174,0.04);
+            border-color: rgba(30,234,174,0.2);
+        }
+        .strategy-card.type-next {
+            background: rgba(245,166,35,0.04);
+            border-color: rgba(245,166,35,0.2);
+        }
+        .strategy-card-bg {
+            position: absolute;
+            right: -10px; bottom: -10px;
+            font-size: 64px;
+            opacity: 0.08;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .strategy-card:hover .strategy-card-bg {
+            opacity: 0.15;
+            transform: scale(1.1) rotate(-5deg);
+        }
+        .strategy-type {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .strategy-card.type-ai .strategy-type { color: var(--emerald); }
+        .strategy-card.type-next .strategy-type { color: var(--amber); }
+        .strategy-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .strategy-sub {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* ─── YELL / DIALOGUE ─── */
+        .yell-section {
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .yell-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 100%, rgba(30,234,174,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Dialogue bubbles */
+        .dialogue-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .dialogue-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+        }
+        .dialogue-row.right {
+            flex-direction: row-reverse;
+        }
+        .dialogue-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            background: rgba(18,52,32,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dialogue-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .dialogue-avatar-emoji {
+            font-size: 36px;
+        }
+        .dialogue-bubble {
+            flex: 1;
+            max-width: calc(100% - 100px);
+            padding: 18px 22px;
+            border-radius: 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.8;
+            color: var(--text-primary);
+            position: relative;
+        }
+        .dialogue-row.left .dialogue-bubble { border-bottom-left-radius: 4px; }
+        .dialogue-row.right .dialogue-bubble { border-bottom-right-radius: 4px; }
+        .dialogue-bubble .speaker {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--emerald);
+            margin-bottom: 8px;
+        }
+        .dialogue-row.right .speaker { color: var(--amber); }
+
+        /* Essence highlight */
+        .essence-block {
+            background: linear-gradient(135deg, rgba(30,234,174,0.08) 0%, rgba(18,52,32,0.65) 100%);
+            border: 1px solid var(--emerald);
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-top: 28px;
+            position: relative;
+        }
+        .essence-block::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 24px;
+            width: 60px; height: 2px;
+            background: var(--emerald);
+            box-shadow: 0 0 8px var(--emerald);
+        }
+        .essence-label {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            color: var(--emerald);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .essence-quote {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .essence-sub {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        /* ─── Tags / chips ─── */
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .tag {
+            font-size: 11px;
+            font-weight: 900;
+            padding: 5px 14px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .tag:hover {
+            border-color: var(--emerald);
+            color: var(--emerald);
+        }
+
+        /* ─── Footer ─── */
+        .site-footer {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 32px 20px;
+            border-top: 1px solid var(--border);
+            margin-top: 16px;
+        }
+
+        /* ─── Transition helpers ─── */
+        .fade-enter { opacity: 0; transform: scale(0.96); }
+        .fade-enter-active {
+            transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        /* ─── Level-up flash ─── */
+        @keyframes levelup-flash {
+            0%   { box-shadow: 0 0 0 0 var(--emerald-glow); }
+            50%  { box-shadow: 0 0 40px 20px var(--emerald-glow); }
+            100% { box-shadow: 0 0 0 0 transparent; }
+        }
+        .levelup-flash { animation: levelup-flash 0.5s ease-out; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 640px) {
+            .wrapper { padding: 20px 14px 60px; }
+            .header-section { padding: 32px 24px 28px; }
+            .lv-num { font-size: 52px; }
+            .character-img-wrap { width: 130px; height: 150px; }
+            #haru-main { max-height: 150px; }
+            .training-log, .yell-section, .slider-section { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ambient-1"></div>
+<div class="ambient-2"></div>
+
+<div class="wrapper">
+
+    <!-- ═══════════════════════════════════════
+         HEADER
+    ═══════════════════════════════════════ -->
+    <header class="header-section" id="main-header">
+        <div class="header-scanline"></div>
+
+        <div style="display:flex; flex-direction:column; gap:32px;">
+            <!-- Top row: badges -->
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+                <span class="badge badge-red">
+                    <span style="width:6px;height:6px;border-radius:50%;background:#FF6B6B;animation:pulse 1.5s infinite;display:inline-block;"></span>
+                    Episode #2
+                </span>
+                <span class="badge badge-emerald">薩摩AI修行日誌</span>
+                <span class="badge badge-amber" style="margin-left:auto;">2026.04.05 SAT</span>
+            </div>
+
+            <!-- Main content row -->
+            <div style="display:flex; align-items:flex-end; gap:32px; flex-wrap:wrap;">
+                <!-- Character -->
+                <div class="character-stage" style="flex-shrink:0;">
+                    <div class="character-glow-ring" id="char-glow"></div>
+                    <div class="character-img-wrap">
+                        <img src="haru_lv1.png" id="haru-header" alt="はるくん" style="max-width:100%;max-height:200px;object-fit:contain;transition:opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 20px rgba(30,234,174,0.4));position:relative;z-index:1;">
+                    </div>
+                </div>
+
+                <!-- Text -->
+                <div style="flex:1; min-width:240px;">
+                    <p style="font-size:11px;font-weight:900;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px;">
+                        Satsuma AI Shugyo Nisshi
+                    </p>
+                    <h1 style="font-size:clamp(22px,4vw,36px);font-weight:900;color:var(--text-primary);line-height:1.35;margin-bottom:16px;">
+                        「直感」を論理で裏付ける！<br>
+                        <span style="color:var(--emerald);text-shadow:0 0 20px rgba(30,234,174,0.5);">
+                            50万円のボロ戸建て即決修行
+                        </span>
+                    </h1>
+                    <!-- ★ 今日の一言サマリー -->
+                    <div style="
+                        background: rgba(30,234,174,0.08);
+                        border: 1px solid rgba(30,234,174,0.3);
+                        border-radius: 14px;
+                        padding: 12px 16px;
+                        margin-bottom: 14px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                    ">
+                        <span style="font-size:18px; flex-shrink:0;">💬</span>
+                        <p style="
+                            font-size: 14px;
+                            font-weight: 700;
+                            color: var(--text-primary);
+                            line-height: 1.5;
+                            margin: 0;
+                        ">
+                            初めて現地内見5分で即決した。直感って経験の積み重ねなんだと気づいた日。
+                        </p>
+                    </div>
+
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <span class="tag">#不動産</span>
+                        <span class="tag">#AI活用</span>
+                        <span class="tag">#即断力</span>
+                        <span class="tag">#修行録</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- ═══════════════════════════════════════
+         MODE SWITCHER
+    ═══════════════════════════════════════ -->
+    <div id="mode-switcher" style="
+        display: flex;
+        gap: 8px;
+        margin-bottom: 28px;
+        background: rgba(30,234,174,0.05);
+        border: 1px solid rgba(30,234,174,0.15);
+        border-radius: 16px;
+        padding: 6px;
+    ">
+        <button onclick="setMode('full')" id="btn-full" style="
+            flex: 1;
+            padding: 10px 0;
+            border-radius: 12px;
+            border: none;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--emerald);
+            color: #060e08;
+            box-shadow: 0 0 16px rgba(30,234,174,0.4);
+        ">📋 フル版</button>
+        <button onclick="setMode('light')" id="btn-light" style="
+            flex: 1;
+            padding: 10px 0;
+            border-radius: 12px;
+            border: none;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: var(--text-muted);
+        ">⚡ ライト版</button>
+        <button onclick="setMode('oneline')" id="btn-oneline" style="
+            flex: 1;
+            padding: 10px 0;
+            border-radius: 12px;
+            border: none;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: var(--text-muted);
+        ">✏️ 1行版</button>
+    </div>
+
+    <!-- 1行版専用ボックス（通常は非表示） -->
+    <div id="section-oneline" style="display:none; margin-bottom:32px;">
+        <div class="glass" style="padding:24px; border-radius:20px; text-align:center;">
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px; font-weight:700;">今日の一言（忙しい日用）</p>
+            <p style="font-size:18px; font-weight:900; color:var(--text-primary); line-height:1.7;">
+                今日はプロンプト練習を30分だけ。<br>
+                <span style="color:var(--emerald);">小さくても続けることが大事。</span>
+            </p>
+            <div style="margin-top:16px; display:flex; justify-content:center; gap:8px;">
+                <span class="tag">#継続</span>
+                <span class="tag">#AI修行</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         LEVEL SLIDER
+    ═══════════════════════════════════════ -->
+    <section class="glass slider-section" style="margin-bottom:32px;" id="slider-section">
+        <div class="section-label">
+            <span>Character Status / 本日の自己評価</span>
+        </div>
+
+        <div style="display:flex; align-items:flex-end; gap:40px; flex-wrap:wrap;">
+            <!-- Readout -->
+            <div style="flex-shrink:0;min-width:120px;">
+                <div class="level-readout">
+                    <span class="lv-num" id="lv-num">1</span>
+                    <span class="lv-label" style="padding-bottom:14px;">/ 10</span>
+                </div>
+                <div class="lv-title" id="lv-title">修行の第一歩</div>
+            </div>
+
+            <!-- Slider -->
+            <div style="flex:1; min-width:200px;">
+                <div class="level-ticks" id="level-ticks">
+                    <span class="active">1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    <span>6</span>
+                    <span>7</span>
+                    <span>8</span>
+                    <span>9</span>
+                    <span>10</span>
+                </div>
+                <div class="level-meter-wrap" id="track-wrap">
+                    <div class="slider-track-fill" id="track-fill" style="width:0%;"></div>
+                    <input type="range" min="1" max="10" value="1" id="level-slider">
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:12px;">
+                    <span style="font-size:9px;font-weight:900;letter-spacing:0.12em;color:var(--text-muted);">LV.1 — Tシャツ</span>
+                    <span style="font-size:9px;font-weight:900;letter-spacing:0.12em;color:var(--text-muted);">LV.5 — 銅の鎧</span>
+                    <span style="font-size:9px;font-weight:900;letter-spacing:0.12em;color:var(--emerald);">LV.10 — ロトの鎧</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════
+         4-CYCLE CARDS
+    ═══════════════════════════════════════ -->
+    <section style="margin-bottom:32px;" id="section-cycles">
+        <div class="section-label">
+            <span>Learning Cycle / 今日の学びと実践</span>
+        </div>
+
+        <div class="cycle-grid">
+            <!-- Input -->
+            <div class="cycle-card">
+                <div class="cycle-icon" style="background:rgba(251,146,60,0.12); border:1px solid rgba(251,146,60,0.2);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FB923C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </div>
+                <div class="cycle-card-type">Input</div>
+                <div class="cycle-card-title">築60年の物件を内見</div>
+                <div class="cycle-card-sub">水回りと立地のポテンシャルを現地確認</div>
+            </div>
+
+            <!-- Output -->
+            <div class="cycle-card">
+                <div class="cycle-icon" style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                </div>
+                <div class="cycle-card-type">Output</div>
+                <div class="cycle-card-title">5分で「買います」連絡</div>
+                <div class="cycle-card-sub">完璧を待たず、機会損失を防ぐ</div>
+            </div>
+
+            <!-- Insight (ACTIVE) -->
+            <div class="cycle-card active">
+                <div class="cycle-icon" style="background:rgba(30,234,174,0.12); border:1px solid rgba(30,234,174,0.3);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1EEAAE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div class="cycle-card-type">Insight ★</div>
+                <div class="cycle-card-title">直感は経験の処理</div>
+                <div class="cycle-card-sub">衝動ではなく、これまでの蓄積が鳴らしたアラート</div>
+            </div>
+
+            <!-- Share -->
+            <div class="cycle-card">
+                <div class="cycle-icon" style="background:rgba(250,204,21,0.1); border:1px solid rgba(250,204,21,0.2);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </div>
+                <div class="cycle-card-type">Share</div>
+                <div class="cycle-card-title">小さく失敗する枠組み</div>
+                <div class="cycle-card-sub">50万なら動ける！プロ不要の第一歩</div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════
+         TRAINING LOG
+    ═══════════════════════════════════════ -->
+    <section style="margin-bottom:32px;" id="section-log">
+        <div class="section-label">
+            <span>Training Log / 本日の修行録</span>
+        </div>
+
+        <div class="glass training-log">
+            <h3>【修行報告】直感が形になる「50万円」の決断力と、完璧主義の排除</h3>
+
+            <p>
+                今日は以前からずっと気になっていた、<strong style="color:var(--emerald);">築60年のボロ戸建て</strong>の現地内見に向かいました。日々の膨大なリサーチを通じて培ってきた相場感から見て、この物件の「50万円」という破格の価格設定には強烈な違和感を感じていました。この違和感こそが「チャンスの匂い」だと判断し、即座に現地へ急行できたのは大きな収穫でした。不動産投資において、スピードは最大の武器になります。
+            </p>
+
+            <div class="quote-block">
+                <p>
+                    現場で確認すべきポイントを「水回りの状態」と「立地のポテンシャル」だけに極限まで絞り込むことで、迷いを排除しました。
+                </p>
+            </div>
+
+            <p>
+                結果として、なんと内見開始から<strong style="color:var(--emerald);">わずか5分で「買います」と仲介業者へ即決の連絡</strong>を入れることができました。多くの人は「もう少し条件の良い物件が出るかもしれない」と完璧を求めてしまいがちです。しかし、このスピード決断を生んだのは決して無謀なギャンブルや衝動ではありません。これまでの泥臭い修行と相場観の蓄積が、無意識のうちに脳内でリスク計算を終え、アラートを鳴らした結果なのです。
+            </p>
+
+            <p>
+                プロの投資家ではなくとも、リカバリー可能な「50万円」という絶妙な投資範囲であれば、リスクを取って大胆に動くことができます。完璧を待ち続けて機会損失を出すよりも、最速で打席に立ち、実地の経験から学び続けることの重要性を、今日の実践を通じて深く肌で感じることができました。明日は早速、残置物の撤去作業という新たなトレジャーハントに取り掛かります。
+            </p>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════
+         ARSENAL
+    ═══════════════════════════════════════ -->
+    <section class="arsenal-section" style="margin-bottom:32px;" id="section-arsenal">
+        <div class="section-label">
+            <span>Arsenal / 本日の武器庫</span>
+        </div>
+
+        <div class="glass" style="padding:28px 32px; margin-bottom:16px;">
+            <p style="font-size:9px;font-weight:900;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+                Today's Arsenal
+            </p>
+            <div class="tool-chips">
+                <div class="tool-chip">
+                    <span class="tool-chip-icon">🎙️</span>
+                    <div>
+                        <div class="tool-chip-name">AquaVoice</div>
+                        <div class="tool-chip-sub">音声入力</div>
+                    </div>
+                </div>
+                <div class="tool-chip">
+                    <span class="tool-chip-icon">🧠</span>
+                    <div>
+                        <div class="tool-chip-name" style="color:#FF6B6B;">Claude Code</div>
+                        <div class="tool-chip-sub">長文生成</div>
+                    </div>
+                </div>
+                <div class="tool-chip">
+                    <span class="tool-chip-icon">✨</span>
+                    <div>
+                        <div class="tool-chip-name" style="color:#60A5FA;">Gemini</div>
+                        <div class="tool-chip-sub">リサーチ支援</div>
+                    </div>
+                </div>
+                <div class="tool-chip">
+                    <span class="tool-chip-icon">⚡</span>
+                    <div>
+                        <div class="tool-chip-name" style="color:#A78BFA;">Cursor</div>
+                        <div class="tool-chip-sub">コード補完</div>
+                    </div>
+                </div>
+                <div class="tool-chip">
+                    <span class="tool-chip-icon">📊</span>
+                    <div>
+                        <div class="tool-chip-name" style="color:#34D399;">GAS</div>
+                        <div class="tool-chip-sub">自動化スクリプト</div>
+                    </div>
+                </div>
+                <div class="tool-chip">
+                    <span class="tool-chip-icon">💰</span>
+                    <div>
+                        <div class="tool-chip-name">50万円の決断力</div>
+                        <div class="tool-chip-sub">リカバリー可能な投資</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                <span class="badge badge-emerald">音声→記事 自動化</span>
+                <span class="badge" style="color:var(--amber);border-color:var(--amber);background:var(--amber-dim);">即断プロトコル</span>
+                <span class="badge" style="color:#A78BFA;border-color:#A78BFA;background:rgba(167,139,250,0.12);">相場感トレーニング</span>
+            </div>
+        </div>
+
+        <div class="strategy-grid">
+            <div class="strategy-card type-ai">
+                <div class="strategy-card-bg">🚀</div>
+                <div class="strategy-type">AI Leverage</div>
+                <div class="strategy-title">音声10分 ⇨ 自動記事化</div>
+                <div class="strategy-sub">圧倒的サボり実現！書く手間をゼロへ。</div>
+            </div>
+            <div class="strategy-card type-next">
+                <div class="strategy-card-bg">🎯</div>
+                <div class="strategy-type">Next Action</div>
+                <div class="strategy-title">残置物トレジャーハント企画</div>
+                <div class="strategy-sub">不用品を地域の価値に変換する！</div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════
+         YELL / DIALOGUE
+    ═══════════════════════════════════════ -->
+    <section id="section-yell">
+        <div class="section-label">
+            <span>エール & 本質 / Yell from Haru-kun</span>
+        </div>
+
+        <div class="glass yell-section">
+            <div class="dialogue-wrap">
+                <!-- さくらじまお -->
+                <div class="dialogue-row left">
+                    <div class="dialogue-avatar">
+                        <span class="dialogue-avatar-emoji">🌋</span>
+                    </div>
+                    <div class="dialogue-bubble">
+                        <div class="speaker">さくらじまお</div>
+                        ほう…50万円で動いたんか。修行者よ、ちゃんと「場」に足を運んだのはよかよか。<br>
+                        相場をなめるな、でも怖れすぎるな。それが薩摩の流儀じゃ。
+                    </div>
+                </div>
+
+                <!-- はるくん -->
+                <div class="dialogue-row right">
+                    <div class="dialogue-avatar" style="border-color:rgba(30,234,174,0.4);">
+                        <img src="haru_lv1.png" id="haru-yell" alt="はるくん" style="width:100%;height:100%;object-fit:cover;transition:opacity 0.25s ease;">
+                    </div>
+                    <div class="dialogue-bubble" style="border-color:rgba(30,234,174,0.25);background:rgba(30,234,174,0.04);">
+                        <div class="speaker" style="color:var(--emerald);">はるくん</div>
+                        完璧を待たずに動き出す勇気が最大の収穫じゃったな！<br>
+                        50万円という絶妙なリスク設定で、まさに不動産修行の第一歩を踏み出せたぜ！
+                    </div>
+                </div>
+            </div>
+
+            <!-- Essence block -->
+            <div class="essence-block">
+                <div class="essence-label">Essence of Today — 今日の本質</div>
+                <div class="essence-quote">
+                    「直感」とは、経験の無意識かつ最速の処理である。
+                </div>
+                <div class="essence-sub">
+                    泥臭いインプットの量が、いざという時の決断スピードに変わる。だから日々学び続けるんじゃな！
+                </div>
+                <div class="tag-row">
+                    <span class="tag" style="color:var(--emerald);border-color:var(--emerald);">よかよか！</span>
+                    <span class="tag" style="color:var(--emerald);border-color:var(--emerald);">ふんわり♪ フレーフレー♪</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div><!-- /wrapper -->
+
+<footer class="site-footer">
+    &copy; 2026 Satsuma AI Shugyo Nisshi &nbsp;/&nbsp; Haru-kun & Sakurajima-o
+</footer>
+
+<!-- ─────────────────────────────────────────
+     SCRIPT
+───────────────────────────────────────── -->
+<script>
+// ── モード切替 ──────────────────────────────
+function setMode(mode) {
+    const full    = ['slider-section','section-cycles','section-log','section-arsenal','section-yell'];
+    const light   = ['slider-section'];
+    const oneline = [];
+
+    const btnFull    = document.getElementById('btn-full');
+    const btnLight   = document.getElementById('btn-light');
+    const btnOneline = document.getElementById('btn-oneline');
+    const secOneline = document.getElementById('section-oneline');
+
+    // ボタンスタイルリセット
+    [btnFull, btnLight, btnOneline].forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'rgba(232,245,240,0.5)';
+        b.style.boxShadow = 'none';
+    });
+
+    // モード別に表示/非表示を切替
+    const allSections = ['slider-section','section-cycles','section-log','section-arsenal','section-yell'];
+
+    if (mode === 'full') {
+        allSections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = '';
+        });
+        secOneline.style.display = 'none';
+        btnFull.style.background = 'var(--emerald)';
+        btnFull.style.color = '#060e08';
+        btnFull.style.boxShadow = '0 0 16px rgba(30,234,174,0.4)';
+
+    } else if (mode === 'light') {
+        allSections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = id === 'slider-section' ? '' : 'none';
+        });
+        secOneline.style.display = 'none';
+        btnLight.style.background = 'rgba(30,234,174,0.2)';
+        btnLight.style.color = 'var(--emerald)';
+        btnLight.style.boxShadow = '0 0 12px rgba(30,234,174,0.2)';
+
+    } else if (mode === 'oneline') {
+        allSections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        secOneline.style.display = '';
+        btnOneline.style.background = 'rgba(245,166,35,0.2)';
+        btnOneline.style.color = 'var(--amber)';
+        btnOneline.style.boxShadow = '0 0 12px rgba(245,166,35,0.2)';
+    }
+}
+
+(function () {
+    const slider     = document.getElementById('level-slider');
+    const lvNum      = document.getElementById('lv-num');
+    const lvTitle    = document.getElementById('lv-title');
+    const trackFill  = document.getElementById('track-fill');
+    const ticks      = document.querySelectorAll('#level-ticks span');
+    const charGlow   = document.getElementById('char-glow');
+    const haruHeader = document.getElementById('haru-header');
+    const haruYell   = document.getElementById('haru-yell');
+    const header     = document.getElementById('main-header');
+    const sliderSect = document.getElementById('slider-section');
+
+    const titles = {
+        1:  "修行の第一歩",
+        2:  "歩き始めた若葉",
+        3:  "少し慣れた旅人",
+        4:  "確かな手応え",
+        5:  "銅の勇者",
+        6:  "鉄の意志",
+        7:  "鋼の決断力",
+        8:  "覚醒の兆候",
+        9:  "熟練のオーラ",
+        10: "伝説の始まり（ロト）"
+    };
+
+    // Colour ramp: emerald (lv1) → gold (lv10)
+    const glowColors = {
+        1:  'rgba(30,234,174,0.4)',
+        2:  'rgba(30,234,174,0.4)',
+        3:  'rgba(16,220,140,0.45)',
+        4:  'rgba(32,228,120,0.45)',
+        5:  'rgba(80,210,100,0.5)',
+        6:  'rgba(120,200,80,0.5)',
+        7:  'rgba(180,190,50,0.5)',
+        8:  'rgba(220,170,30,0.55)',
+        9:  'rgba(245,150,20,0.6)',
+        10: 'rgba(255,120,40,0.65)',
+    };
+    const textColors = {
+        1:  '#1EEAAE',
+        2:  '#1EEAAE',
+        3:  '#10DC8C',
+        4:  '#20E478',
+        5:  '#50D264',
+        6:  '#78C850',
+        7:  '#B4BE32',
+        8:  '#DCAA1E',
+        9:  '#F5961E',
+        10: '#FF7828',
+    };
+
+    let prevLv = 1;
+    let animating = false;
+
+    function applyLevel(lv, animate) {
+        lvNum.textContent  = lv;
+        lvTitle.textContent = titles[lv];
+
+        // Track fill (slider goes from 1-10, so percentage = (lv-1)/9)
+        const pct = ((lv - 1) / 9) * 100;
+        trackFill.style.width = pct + '%';
+
+        // Tick highlights
+        ticks.forEach((tick, i) => {
+            tick.classList.toggle('active', i < lv);
+        });
+
+        // Colours
+        const gc   = glowColors[lv];
+        const tc   = textColors[lv];
+        lvNum.style.color      = tc;
+        lvNum.style.textShadow = `0 0 30px ${gc}, 0 0 60px ${gc.replace('0.4','0.2')}`;
+        charGlow.style.background = `radial-gradient(ellipse, ${gc} 0%, transparent 70%)`;
+
+        // Image swap with animation
+        if (animate && !animating) {
+            animating = true;
+            const imgs = [haruHeader, haruYell];
+
+            imgs.forEach(img => { img.style.opacity = '0'; img.style.transform = 'scale(0.9)'; });
+
+            setTimeout(() => {
+                const src = `haru_lv${lv}.png`;
+                let loaded = 0;
+                imgs.forEach(img => {
+                    img.src = src;
+                    img.onload = () => {
+                        img.style.opacity = '1';
+                        img.style.transform = 'scale(1)';
+                        img.style.filter = `drop-shadow(0 0 20px ${gc})`;
+                        loaded++;
+                        if (loaded === imgs.length) animating = false;
+                    };
+                    // Fallback
+                    img.onerror = () => {
+                        img.style.opacity = '1';
+                        img.style.transform = 'scale(1)';
+                        animating = false;
+                    };
+                });
+            }, 180);
+        } else if (!animate) {
+            const src = `haru_lv${lv}.png`;
+            [haruHeader, haruYell].forEach(img => {
+                img.src = src;
+                img.style.filter = `drop-shadow(0 0 20px ${gc})`;
+            });
+        }
+
+        // Level-up flash on section
+        if (lv > prevLv) {
+            sliderSect.classList.remove('levelup-flash');
+            void sliderSect.offsetWidth; // reflow
+            sliderSect.classList.add('levelup-flash');
+        }
+
+        prevLv = lv;
+    }
+
+    slider.addEventListener('input', (e) => {
+        applyLevel(parseInt(e.target.value), true);
+    });
+
+    // Init
+    applyLevel(1, false);
+
+    // Pulse keyframes for episode badge dot
+    const style = document.createElement('style');
+    style.textContent = `@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }`;
+    document.head.appendChild(style);
+})();
+</script>
+
+</body>
+</html>
