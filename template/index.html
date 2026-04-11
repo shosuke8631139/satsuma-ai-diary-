@@ -1070,9 +1070,9 @@
 
                 <!-- はるくん -->
                 <div class="dialogue-row right">
-                    <div class="dialogue-avatar" style="
+                    <div id="haru-avatar" class="dialogue-avatar" style="
                         border-color:rgba(30,234,174,0.5);
-                        background-image: url('haru.png');
+                        background-image: url('haru_lv1.png');
                         background-size: cover;
                         background-position: center 84%;
                         background-repeat: no-repeat;
@@ -1175,8 +1175,8 @@ function setMode(mode) {
     const trackFill  = document.getElementById('track-fill');
     const ticks      = document.querySelectorAll('#level-ticks span');
     const charGlow    = document.getElementById('char-glow');
-    const haruHeader  = document.getElementById('haru-header');
-    const haruYell    = document.getElementById('haru-yell');
+    const haruHeader  = document.getElementById('haru-header');   // <img> ヘッダー大画像
+    const haruAvatar  = document.getElementById('haru-avatar');   // <div> 会話アイコン（background-image）
     const sakuraHeader = document.getElementById('sakura-header');
     const sakuraGlow  = document.getElementById('sakura-glow');
     const header      = document.getElementById('main-header');
@@ -1267,38 +1267,48 @@ function setMode(mode) {
         }
 
         // Image swap with animation
+        const src = `haru_lv${lv}.png`;
+
         if (animate && !animating) {
             animating = true;
-            const imgs = [haruHeader, haruYell];
 
-            imgs.forEach(img => { img.style.opacity = '0'; img.style.transform = 'scale(0.9)'; });
+            // ヘッダー大画像（<img>）をフェードアウト→差し替え→フェードイン
+            if (haruHeader) {
+                haruHeader.style.opacity = '0';
+                haruHeader.style.transform = 'scale(0.9)';
+            }
 
             setTimeout(() => {
-                const src = `haru_lv${lv}.png`;
-                let loaded = 0;
-                imgs.forEach(img => {
-                    img.src = src;
-                    img.onload = () => {
-                        img.style.opacity = '1';
-                        img.style.transform = 'scale(1)';
-                        img.style.filter = `drop-shadow(0 0 20px ${gc})`;
-                        loaded++;
-                        if (loaded === imgs.length) animating = false;
-                    };
-                    // Fallback
-                    img.onerror = () => {
-                        img.style.opacity = '1';
-                        img.style.transform = 'scale(1)';
+                if (haruHeader) {
+                    haruHeader.src = src;
+                    haruHeader.onload = () => {
+                        haruHeader.style.opacity = '1';
+                        haruHeader.style.transform = 'scale(1)';
+                        haruHeader.style.filter = `drop-shadow(0 0 20px ${gc})`;
                         animating = false;
                     };
-                });
+                    haruHeader.onerror = () => {
+                        haruHeader.style.opacity = '1';
+                        haruHeader.style.transform = 'scale(1)';
+                        animating = false;
+                    };
+                } else {
+                    animating = false;
+                }
+                // 会話アイコン（<div>）は background-image を直接差し替え
+                if (haruAvatar) {
+                    haruAvatar.style.backgroundImage = `url('${src}')`;
+                }
             }, 180);
         } else if (!animate) {
-            const src = `haru_lv${lv}.png`;
-            [haruHeader, haruYell].forEach(img => {
-                img.src = src;
-                img.style.filter = `drop-shadow(0 0 20px ${gc})`;
-            });
+            // 初期表示（アニメなし）
+            if (haruHeader) {
+                haruHeader.src = src;
+                haruHeader.style.filter = `drop-shadow(0 0 20px ${gc})`;
+            }
+            if (haruAvatar) {
+                haruAvatar.style.backgroundImage = `url('${src}')`;
+            }
         }
 
         // Level-up flash on section
