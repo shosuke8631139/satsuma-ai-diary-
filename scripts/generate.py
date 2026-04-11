@@ -121,7 +121,14 @@ def render_html(data: dict) -> str:
 # ─────────────────────────────────────────
 def save_deploy_files(html_content: str):
     (DEPLOY_DIR / "index.html").write_text(html_content, encoding="utf-8")
-    for img in ["sakurajima.png", "haru.png", "image_2.png"]:
+    # 基本画像
+    for img in ["sakurajima.png", "haru.png", "image_2.png", "image_5.png"]:
+        src = TEMPLATE_DIR / img
+        if src.exists():
+            shutil.copy(src, DEPLOY_DIR / img)
+    # レベル別はるくん画像（スライダー切り替え用）
+    for lv in range(1, 11):
+        img = f"haru_lv{lv}.png"
         src = TEMPLATE_DIR / img
         if src.exists():
             shutil.copy(src, DEPLOY_DIR / img)
