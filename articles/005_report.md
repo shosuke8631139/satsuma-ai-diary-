@@ -95,3 +95,5 @@ AIの進歩がこのまま続いていくと、積み重ねられたデータが
 <!-- body paragraphs added -->
 
 <!-- surge token test -->
+
+<!-- fix image paths -->
