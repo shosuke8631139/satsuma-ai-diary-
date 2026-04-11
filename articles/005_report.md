@@ -97,3 +97,4 @@ AIの進歩がこのまま続いていくと、積み重ねられたデータが
 <!-- surge token test -->
 
 <!-- v4: css-filter slider -->
+<!-- v5: deploy size fix -->
