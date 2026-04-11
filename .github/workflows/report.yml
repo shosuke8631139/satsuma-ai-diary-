@@ -46,6 +46,7 @@ jobs:
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           LINE_WEBHOOK_URL:  ${{ secrets.LINE_WEBHOOK_URL }}
+          SURGE_DOMAIN:      satsuma-ai-diary.surge.sh
         run: |
           FILE="${{ steps.changed.outputs.file }}"
           if [ -z "$FILE" ]; then
@@ -54,7 +55,15 @@ jobs:
           fi
           python scripts/generate.py "$FILE"
 
-      # ⑦ 生成した画像をArtifactとして保存（ダウンロード可能にする）
+      # ⑦ Surge にデプロイ
+      - name: Surge にデプロイ
+        env:
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+        run: |
+          npm install -g surge
+          surge ./deploy satsuma-ai-diary.surge.sh
+
+      # ⑧ 生成した画像をArtifactとして保存（ダウンロード可能にする）
       - name: 生成画像をアップロード
         uses: actions/upload-artifact@v4
         with:
