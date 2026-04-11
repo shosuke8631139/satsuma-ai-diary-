@@ -112,14 +112,13 @@ def capture_screenshot(html_content: str, output_path: Path) -> Path:
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
-            page = browser.new_page(viewport={"width": 750, "height": 900})
+            page = browser.new_page(viewport={"width": 780, "height": 1200})
             page.goto(f"file:///{tmp_html.as_posix()}", wait_until="networkidle")
-            # カード要素だけをクロップ
             card = page.query_selector(".card")
             if card:
                 card.screenshot(path=str(output_path))
             else:
-                page.screenshot(path=str(output_path), full_page=False)
+                page.screenshot(path=str(output_path), full_page=True)
             browser.close()
     finally:
         tmp_html.unlink(missing_ok=True)
