@@ -16,7 +16,8 @@ import shutil
 import tempfile
 from pathlib import Path
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from jinja2 import Environment, FileSystemLoader
 from playwright.sync_api import sync_playwright
 import requests
@@ -39,13 +40,16 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # Step 1: Gemini API で記事を解析
 # ─────────────────────────────────────────
 def extract_data_with_gemini(article_text: str) -> dict:
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
     prompt = f"""
 あなたはAIスクールの学習報告アシスタントです。
 以下の記事から、報告カード用データをJSON形式で正確に抽出してください。
 出力はJSONのみ。説明文・コードブロック記号は不要です。
+
+キャラクター設定:
+- はるくん: おっさんだけど楽しみながら学ぶ探究者。さっぱりした男らしさ。たまに鹿児島弁。決め台詞「とりあえずスクワットすっど」
+- さくらじまお: 天然ボケで的外れなんだけど可愛げがあって結果的に正しい。おっとり鹿児島弁。決め台詞「とりあえず、冷えたさつまいも食っとけ」
 
 抽出項目:
 {{
@@ -65,15 +69,18 @@ def extract_data_with_gemini(article_text: str) -> dict:
   "tools": [
     {{"name": "ツール名", "icon": "絵文字", "desc": "用途（6文字以内）"}}
   ],
-  "haru_message": "はるくんのひと言コメント（鹿児島弁で、60文字以内）",
-  "sakura_message": "さくらじまおの応援メッセージ（ふんわり系、30文字以内）"
+  "haru_message": "はるくんのひと言（さっぱり男らしく、たまに鹿児島弁、60文字以内）",
+  "sakura_message": "さくらじまおの天然ボケコメント（おっとり鹿児島弁、結果的に正しい、40文字以内）"
 }}
 
 記事:
 {article_text}
 """
 
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
     raw = response.text.strip()
 
     # コードブロック除去
