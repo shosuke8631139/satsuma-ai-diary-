@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>薩摩AI修行日誌 | 学習報告 #1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#f5f0e8',
+            card: '#ffffff',
+            teal: '#4ecdc4',
+            'teal-light': '#e6f9f7',
+            'teal-dark': '#2bb5ab',
+            'progress-green': '#52b788',
+            salmon: '#ffb3ae',
+            'salmon-light': '#ffe8e6',
+            'text-main': '#3a3530',
+            'text-sub': '#8a8580',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background-color: #f0ebe0;
+      background-image: radial-gradient(circle at 20% 20%, #fce4ec22 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, #e8f5e922 0%, transparent 50%);
+    }
+    .main-card {
+      box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .progress-track {
+      background: #e5e0d8;
+      border-radius: 999px;
+      height: 28px;
+      position: relative;
+      overflow: visible;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #40b075, #74c69d);
+      border-radius: 999px;
+      height: 100%;
+      transition: width 0.6s ease;
+    }
+    .flow-card {
+      background: #fafaf9;
+      border: 1.5px solid #e8e4de;
+      border-radius: 18px;
+      padding: 14px 10px;
+      text-align: center;
+      transition: transform 0.15s;
+    }
+    .flow-card:hover {
+      transform: translateY(-2px);
+    }
+    .flow-card.active {
+      background: #e6f9f7;
+      border: 2.5px solid #4ecdc4;
+    }
+    .tool-badge {
+      background: #fafaf9;
+      border: 1.5px solid #e8e4de;
+      border-radius: 14px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cheer-box {
+      border: 2.5px solid #4ecdc4;
+      background: linear-gradient(135deg, #f0faf9, #e8f9f7);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .speech-bubble {
+      background: white;
+      border: 1.5px solid #d0ece9;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: #5a7570;
+      white-space: nowrap;
+      margin-top: 4px;
+      text-align: center;
+    }
+    .char-placeholder {
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .section-icon {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+    .sakura {
+      color: #f9a8c9;
+      font-size: 14px;
+      position: absolute;
+      user-select: none;
+    }
+    .episode-badge {
+      background: #ffe0de;
+      color: #d05050;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    .ready-badge {
+      background: white;
+      border: 1.5px solid #c0bab2;
+      color: #6b6560;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      position: absolute;
+      top: -26px;
+      right: 0;
+    }
+    /* Character image containers */
+    .char-img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+    }
+    .header-chars {
+      width: 150px;
+      height: 130px;
+      object-fit: contain;
+      object-position: bottom;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 py-10">
+
+  <!-- Main Card -->
+  <div class="main-card bg-white rounded-3xl w-full max-w-2xl relative overflow-hidden p-6">
+
+    <!-- Decorative cherry blossoms -->
+    <span class="sakura" style="top:36px; right:70px;">🌸</span>
+    <span class="sakura" style="top:120px; right:20px; font-size:12px;">🌸</span>
+    <span class="sakura" style="bottom:60px; right:30px; font-size:16px;">🌸</span>
+    <span class="sakura" style="bottom:20px; right:90px; font-size:10px;">🌸</span>
+    <span class="sakura" style="top:180px; right:12px; font-size:10px;">🌿</span>
+
+    <!-- Episode Badge -->
+    <div class="absolute top-4 right-4 episode-badge">Episode #1</div>
+
+    <!-- ====== HEADER ====== -->
+    <div class="flex items-end gap-4 mb-5">
+      <!-- Characters -->
+      <div class="flex-shrink-0 relative" style="width:150px; height:130px;">
+          <img src="image_2.png" alt="はるくん & さくらじまお" class="header-chars">
+      </div>
+
+      <!-- Title area -->
+      <div class="flex-1 pb-1">
+        <p style="font-size:12px; color:#8a8580; margin-bottom:2px;">薩摩AI修行日誌｜学習報告 #1</p>
+        <h1 style="font-size:22px; font-weight:900; color:#2d2a26; line-height:1.3; margin-bottom:4px;">
+          「報告」を最強の武器にする！🌱
+        </h1>
+        <p style="font-size:12px; color:#8a8580;">2026年4月5日（土）</p>
+      </div>
+
+      <!-- Decorative top-right icons -->
+      <div class="absolute flex gap-1 text-xl" style="top:48px; right:42px;">
+        <span>🥔</span><span>🍼</span>
+      </div>
+    </div>
+
+    <!-- ====== PROGRESS ====== -->
+    <div class="mb-5">
+      <h2 class="flex items-center font-bold text-sm mb-3" style="color:#3a3530;">
+        <span class="section-icon">🥔</span>修行の進捗
+      </h2>
+      <div class="flex items-center gap-3">
+        <!-- Mountain char -->
+        <span style="font-size:26px; flex-shrink:0;">🏔️</span>
+        <!-- Bar -->
+        <div class="flex-1 relative" style="margin-top:22px;">
+          <div class="progress-track">
+            <div class="progress-fill" style="width:15%;"></div>
+            <!-- Small decoration on progress -->
+            <span style="position:absolute; top:-6px; left:15%; font-size:14px;">🌿</span>
+          </div>
+          <span class="ready-badge">READY</span>
+          <!-- Rocks deco -->
+          <span style="position:absolute; bottom:-14px; right:10%; font-size:12px; color:#b0a898;">🪨🪨</span>
+        </div>
+        <!-- Level text -->
+        <span class="font-bold text-sm flex-shrink-0" style="color:#5a5550; margin-top:0;">15% (LV.1)</span>
+      </div>
+    </div>
+
+    <!-- ====== TODAY'S TRAINING ====== -->
+    <div class="mb-5" style="margin-top:18px;">
+      <h2 class="flex items-center font-bold text-sm mb-3" style="color:#3a3530;">
+        <span class="section-icon">📋</span>今日の修行内容（設計図）
+      </h2>
+      <div class="grid grid-cols-4 gap-2">
+
+        <!-- Trigger -->
+        <div class="flow-card">
+          <div style="font-size:26px; margin-bottom:6px;">✅</div>
+          <div style="font-size:10px; color:#a0a0a0; margin-bottom:2px;">Trigger</div>
+          <div style="font-size:11px; font-weight:700; color:#3a3530; margin-bottom:4px;">note記事の完成</div>
+          <div style="font-size:10px; color:#8a8580; line-height:1.4;">発信をトリガーに動かす！</div>
+        </div>
+
+        <!-- Source -->
+        <div class="flow-card">
+          <div style="font-size:26px; margin-bottom:6px;">🗂️</div>
+          <div style="font-size:10px; color:#a0a0a0; margin-bottom:2px;">Source</div>
+          <div style="font-size:11px; font-weight:700; color:#3a3530; margin-bottom:4px;">デジタルコンテンツ</div>
+          <div style="font-size:10px; color:#8a8580; line-height:1.4;">毎日作る文章がデータになる。</div>
+        </div>
+
+        <!-- Process (ACTIVE) -->
+        <div class="flow-card active">
+          <div style="font-size:26px; margin-bottom:6px;">🧠</div>
+          <div style="font-size:10px; font-weight:700; color:#2bb5ab; margin-bottom:2px;">Process</div>
+          <div style="font-size:11px; font-weight:700; color:#3a3530; margin-bottom:4px;">AIによる図解変換</div>
+          <div style="font-size:10px; color:#8a8580; line-height:1.4;">長文をパッと見でわかる形に。</div>
+        </div>
+
+        <!-- Output -->
+        <div class="flow-card">
+          <div style="font-size:26px; margin-bottom:6px;">💬</div>
+          <div style="font-size:10px; color:#a0a0a0; margin-bottom:2px;">Output</div>
+          <div style="font-size:11px; font-weight:700; color:#3a3530; margin-bottom:4px;">Slack / LINE共有</div>
+          <div style="font-size:10px; color:#8a8580; line-height:1.4;">仲間へ一瞬で届ける！</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ====== AI TOOLS ====== -->
+    <div class="mb-5">
+      <h2 class="flex items-center font-bold text-sm mb-3" style="color:#3a3530;">
+        <span class="section-icon">🦺</span>現在の装備（AIツール群）
+      </h2>
+      <div class="flex flex-wrap gap-2">
+
+        <div class="tool-badge">
+          <span style="font-size:16px;">🎙️</span>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#3a3530;">AquaVoice</div>
+            <div style="font-size:10px; color:#8a8580;">音声入力</div>
+          </div>
+        </div>
+
+        <div class="tool-badge">
+          <span style="font-size:16px;">🧠</span>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#3a3530;">Claude Code</div>
+            <div style="font-size:10px; color:#8a8580;">長文生成</div>
+          </div>
+        </div>
+
+        <div class="tool-badge">
+          <span style="font-size:16px; color:#4a90d9;">▲</span>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#3a3530;">Cursor</div>
+            <div style="font-size:10px; color:#8a8580;">Vibe Coding</div>
+          </div>
+        </div>
+
+        <div class="tool-badge">
+          <span style="font-size:16px;">✨</span>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#3a3530;">Gemini</div>
+            <div style="font-size:10px; color:#8a8580;">画像・SNS</div>
+          </div>
+        </div>
+
+        <div class="tool-badge">
+          <span style="font-size:16px;">📊</span>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#3a3530;">GAS</div>
+            <div style="font-size:10px; color:#8a8580;">自動化</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ====== CHEER SECTION ====== -->
+    <div>
+      <h2 class="flex items-center font-bold text-sm mb-3" style="color:#3a3530;">
+        <span class="section-icon">🥔</span>ハルちゃんからのエール
+        <span style="margin-left:4px; font-size:16px;">🍼</span>
+      </h2>
+      <div class="cheer-box">
+        <div class="flex items-start gap-3">
+
+          <!-- Left: はるくん -->
+          <div class="flex flex-col items-center" style="flex-shrink:0;">
+            <div class="char-placeholder" style="width:60px; height:60px; background:#fdf3e7;">
+              <img src="image_haru.png" alt="はるくん" class="char-img"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <span style="display:none; font-size:28px;">🧑</span>
+            </div>
+            <div class="speech-bubble">よかよか！</div>
+          </div>
+
+          <!-- Message -->
+          <div class="flex-1 text-sm leading-relaxed" style="color:#3a3530; padding-top:4px;">
+            よかよか！今日は「見た目」の重要性に気づけたのが最大の収穫じゃったな。
+            AquaVoiceで話してClaudeで整えるこの流れ、まさに未来の働き方そのもの。
+            次はサブエージェントたちを召喚して、もっと精度を上げていこうな！
+          </div>
+
+          <!-- Right: さくらじまお -->
+          <div class="flex flex-col items-center" style="flex-shrink:0;">
+            <div class="char-placeholder" style="width:60px; height:60px; background:#edf9f5;">
+              <img src="image_sakura.png" alt="さくらじまお" class="char-img"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <span style="display:none; font-size:28px;">🏔️</span>
+            </div>
+            <div class="speech-bubble">ふんわり♪フレーフレー♪</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

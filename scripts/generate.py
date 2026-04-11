@@ -127,32 +127,113 @@ def send_to_slack(image_path: Path, data: dict):
         print("[SKIP] SLACK_WEBHOOK_URL が未設定")
         return
 
-    with open(image_path, "rb") as f:
-        img_b64 = base64.b64encode(f.read()).decode()
+    tools_text = "　".join(
+        [f"{t.get('icon','')} {t.get('name','')}" for t in data.get("tools", [])]
+    )
 
     payload = {
+        "username": "サツマ日記ロボ",
+        "icon_emoji": ":volcano:",
         "blocks": [
+            # ── ヘッダー ──
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": f"🌋 薩摩AI修行日誌 Episode #{data.get('episode','?')}",
+                    "emoji": True
+                }
+            },
+            # ── タイトル＆日付 ──
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*薩摩AI修行日誌 Episode #{data['episode']}*\n{data['title']}\n{data['date']}"
+                    "text": (
+                        f"*{data.get('title', '')}*\n"
+                        f"📅 {data.get('date', '')}\n"
+                        f"📈 進捗: *{data.get('progress_percent', '?')}%*　Lv. {data.get('progress_level', '?')}"
+                    )
                 }
             },
+            {"type": "divider"},
+            # ── 4つのサイクル ──
             {
-                "type": "image",
-                "image_url": "",   # ファイルアップロード方式の場合はURLを差し替え
-                "alt_text": "報告カード"
+                "type": "section",
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": (
+                            f"*🔥 {data.get('trigger_title','')}*\n"
+                            f"{data.get('trigger_desc','')}"
+                        )
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": (
+                            f"*📥 {data.get('source_title','')}*\n"
+                            f"{data.get('source_desc','')}"
+                        )
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": (
+                            f"*⚙️ {data.get('process_title','')}*\n"
+                            f"{data.get('process_desc','')}"
+                        )
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": (
+                            f"*📤 {data.get('output_title','')}*\n"
+                            f"{data.get('output_desc','')}"
+                        )
+                    }
+                ]
+            },
+            {"type": "divider"},
+            # ── 使ったツール ──
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"🛠️ *今日の武器庫*\n{tools_text}" if tools_text else "🛠️ *今日の武器庫*\n（データなし）"
+                }
+            },
+            {"type": "divider"},
+            # ── はるくんのセリフ ──
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"💬 *はるくん*\n>{data.get('haru_message', '')}"
+                }
+            },
+            # ── さくらじまおのセリフ ──
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"🌋 *さくらじまお*\n>{data.get('sakura_message', 'とりあえず、冷えたさつまいも食っとけ。🍠')}"
+                }
+            },
+            # ── フッター ──
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "サツマ日記ロボ 🤖 powered by Gemini × GitHub Actions"
+                    }
+                ]
             }
         ]
     }
 
-    # シンプルなメッセージ送信（画像はファイルアップロードAPIが必要な場合は別途対応）
-    simple_payload = {
-        "text": f"📚 薩摩AI修行日誌 Episode #{data['episode']} | {data['title']} | {data['date']}"
-    }
-    resp = requests.post(SLACK_WEBHOOK_URL, json=simple_payload, timeout=10)
+    resp = requests.post(SLACK_WEBHOOK_URL, json=payload, timeout=10)
     print(f"[Slack] ステータス: {resp.status_code}")
+    if resp.status_code != 200:
+        print(f"[Slack] レスポンス: {resp.text}")
 
 
 # ─────────────────────────────────────────
