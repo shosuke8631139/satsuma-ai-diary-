@@ -70,7 +70,9 @@ def extract_data_with_gemini(article_text: str) -> dict:
     {{"name": "ツール名", "icon": "絵文字", "desc": "用途（6文字以内）"}}
   ],
   "haru_message": "はるくんのひと言（さっぱり男らしく、たまに鹿児島弁、60文字以内）",
-  "sakura_message": "さくらじまおの天然ボケコメント（おっとり鹿児島弁、結果的に正しい、40文字以内）"
+  "sakura_message": "さくらじまおの天然ボケコメント（おっとり鹿児島弁、結果的に正しい、40文字以内）",
+  "today_essence": "今日の本質を一言で（40文字以内）",
+  "today_essence_sub": "本質の補足説明（60文字以内）"
 }}
 
 記事:
@@ -127,12 +129,35 @@ def capture_screenshot(html_content: str, output_path: Path) -> Path:
 
 
 # ─────────────────────────────────────────
+# Step 4a-pre: 画像を外部ホスティングにアップロード
+# ─────────────────────────────────────────
+def upload_image(image_path: Path) -> str:
+    try:
+        with open(image_path, "rb") as f:
+            resp = requests.post(
+                "https://catbox.moe/user/api.php",
+                data={"reqtype": "fileupload", "userhash": ""},
+                files={"fileToUpload": f},
+                timeout=60
+            )
+        if resp.status_code == 200 and resp.text.strip().startswith("https://"):
+            url = resp.text.strip()
+            print(f"[OK] 画像アップロード完了: {url}")
+            return url
+    except Exception as e:
+        print(f"[WARN] 画像アップロード失敗: {e}")
+    return ""
+
+
+# ─────────────────────────────────────────
 # Step 4a: Slackに送信
 # ─────────────────────────────────────────
 def send_to_slack(image_path: Path, data: dict):
     if not SLACK_WEBHOOK_URL:
         print("[SKIP] SLACK_WEBHOOK_URL が未設定")
         return
+
+    image_url = upload_image(image_path)
 
     tools_text = "　".join(
         [f"{t.get('icon','')} {t.get('name','')}" for t in data.get("tools", [])]
@@ -224,6 +249,12 @@ def send_to_slack(image_path: Path, data: dict):
                     "text": f"🌋 *さくらじまお*\n>{data.get('sakura_message', 'とりあえず、冷えたさつまいも食っとけ。🍠')}"
                 }
             },
+            # ── 報告カード画像 ──
+            *([{
+                "type": "image",
+                "image_url": image_url,
+                "alt_text": f"薩摩AI修行日誌 Episode #{data.get('episode','?')} 報告カード"
+            }] if image_url else []),
             # ── フッター ──
             {
                 "type": "context",
