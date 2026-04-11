@@ -4,12 +4,6 @@ on:
   push:
     paths:
       - "articles/**"   # articlesフォルダへのpushだけを検知
-  workflow_dispatch:     # GitHubのActionsタブから手動実行も可能
-    inputs:
-      article_file:
-        description: '生成する記事ファイル (例: articles/005_report.md)'
-        required: false
-        default: 'articles/005_report.md'
 
 jobs:
   generate-report:
@@ -52,29 +46,15 @@ jobs:
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           LINE_WEBHOOK_URL:  ${{ secrets.LINE_WEBHOOK_URL }}
-          SURGE_DOMAIN:      satsuma-ai-diary.surge.sh
         run: |
           FILE="${{ steps.changed.outputs.file }}"
-          # 手動トリガーの場合は inputs.article_file を使用
-          if [ -z "$FILE" ] && [ -n "${{ github.event.inputs.article_file }}" ]; then
-            FILE="${{ github.event.inputs.article_file }}"
-          fi
           if [ -z "$FILE" ]; then
             echo "変更された記事ファイルが見つかりませんでした。スキップします。"
             exit 0
           fi
-          echo "処理するファイル: $FILE"
           python scripts/generate.py "$FILE"
 
-      # ⑦ Surge にデプロイ
-      - name: Surge にデプロイ
-        env:
-          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
-        run: |
-          npm install -g surge
-          surge ./deploy satsuma-ai-diary.surge.sh
-
-      # ⑧ 生成した画像をArtifactとして保存（ダウンロード可能にする）
+      # ⑦ 生成した画像をArtifactとして保存（ダウンロード可能にする）
       - name: 生成画像をアップロード
         uses: actions/upload-artifact@v4
         with:

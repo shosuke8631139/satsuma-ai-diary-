@@ -29,14 +29,11 @@ import requests
 GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY", "")
 SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
 LINE_WEBHOOK_URL  = os.environ.get("LINE_WEBHOOK_URL", "")
-SURGE_DOMAIN      = os.environ.get("SURGE_DOMAIN", "satsuma-ai-diary.surge.sh")
 
 ROOT_DIR     = Path(__file__).parent.parent
 TEMPLATE_DIR = ROOT_DIR / "template"
 OUTPUT_DIR   = ROOT_DIR / "output"
-DEPLOY_DIR   = ROOT_DIR / "deploy"
 OUTPUT_DIR.mkdir(exist_ok=True)
-DEPLOY_DIR.mkdir(exist_ok=True)
 
 
 # ─────────────────────────────────────────
@@ -114,21 +111,6 @@ def render_html(data: dict) -> str:
     env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)))
     template = env.get_template("index.html")
     return template.render(**data)
-
-
-# ─────────────────────────────────────────
-# Step 2.5: デプロイ用ファイルを保存
-# ─────────────────────────────────────────
-def save_deploy_files(html_content: str):
-    (DEPLOY_DIR / "index.html").write_text(html_content, encoding="utf-8")
-    # テンプレートで実際に参照されている画像のみコピー
-    for img in ["haru.png", "sakurajima.png"]:
-        src = TEMPLATE_DIR / img
-        if src.exists():
-            shutil.copy(src, DEPLOY_DIR / img)
-        else:
-            print(f"[WARN] 画像が見つかりません: {src}")
-    print(f"[OK] デプロイファイル保存: {DEPLOY_DIR}")
 
 
 # ─────────────────────────────────────────
@@ -284,31 +266,13 @@ def send_to_slack(image_path: Path, data: dict):
                 "image_url": image_url,
                 "alt_text": f"薩摩AI修行日誌 Episode #{data.get('episode','?')} 報告カード"
             }] if image_url else []),
-            # ── Surge URL ──
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"🌐 *フルページで見る（スライダーも動かせます）*\nhttps://{SURGE_DOMAIN}"
-                },
-                "accessory": {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "ページを開く 🌋",
-                        "emoji": True
-                    },
-                    "url": f"https://{SURGE_DOMAIN}",
-                    "action_id": "open_surge"
-                }
-            },
             # ── フッター ──
             {
                 "type": "context",
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": "サツマ日記ロボ 🤖 powered by Gemini × GitHub Actions × Surge"
+                        "text": "サツマ日記ロボ 🤖 powered by Gemini × GitHub Actions"
                     }
                 ]
             }
@@ -367,9 +331,6 @@ def main():
 
     print(f"[2/4] HTMLテンプレートにデータを注入中...")
     html = render_html(data)
-
-    print(f"[2.5/4] デプロイファイルを保存中...")
-    save_deploy_files(html)
 
     print(f"[3/4] Playwrightでスクリーンショット撮影中...")
     capture_screenshot(html, output_path)
