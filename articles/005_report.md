@@ -100,3 +100,4 @@ AIの進歩がこのまま続いていくと、積み重ねられたデータが
 <!-- v5: deploy size fix -->
 <!-- v6: revert to screenshot-only -->
 <!-- v7: full restore to original state -->
+<!-- v8: richer prompt -->
