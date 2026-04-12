@@ -101,3 +101,4 @@ AIの進歩がこのまま続いていくと、積み重ねられたデータが
 <!-- v6: revert to screenshot-only -->
 <!-- v7: full restore to original state -->
 <!-- v8: richer prompt -->
+<!-- v9: haru character voice fix -->
