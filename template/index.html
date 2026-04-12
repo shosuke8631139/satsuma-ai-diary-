@@ -772,13 +772,12 @@
 
             <!-- Main content row -->
             <div style="display:flex; align-items:flex-end; gap:32px; flex-wrap:wrap;">
-                <!-- はるくん (left) -->
+                <!-- Character -->
                 <div class="character-stage" style="flex-shrink:0;">
                     <div class="character-glow-ring" id="char-glow"></div>
                     <div class="character-img-wrap">
-                        <img src="haru.png" id="haru-header" alt="はるくん" style="max-width:100%;max-height:200px;object-fit:contain;transition:filter 0.4s ease, opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 20px rgba(30,234,174,0.4));position:relative;z-index:1;">
+                        <img src="haru_lv1.png" id="haru-header" alt="はるくん" style="max-width:100%;max-height:200px;object-fit:contain;transition:opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 20px rgba(30,234,174,0.4));position:relative;z-index:1;">
                     </div>
-                    <div style="text-align:center;margin-top:6px;font-size:11px;font-weight:900;color:var(--emerald);letter-spacing:0.1em;">はるくん</div>
                 </div>
 
                 <!-- Text -->
@@ -816,15 +815,6 @@
                         {% for tool in tools %}<span class="tag">#{{ tool.name }}</span>{% endfor %}
                         <span class="tag">#修行録</span>
                     </div>
-                </div>
-
-                <!-- さくらじまお (right) -->
-                <div class="character-stage" style="flex-shrink:0;">
-                    <div class="character-glow-ring" id="sakura-glow"></div>
-                    <div class="character-img-wrap">
-                        <img src="sakurajima.png" id="sakura-header" alt="さくらじまお" style="max-width:100%;max-height:200px;object-fit:contain;transition:opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 20px rgba(255,120,50,0.4));position:relative;z-index:1;">
-                    </div>
-                    <div style="text-align:center;margin-top:6px;font-size:11px;font-weight:900;color:#ff9060;letter-spacing:0.1em;">さくらじまお</div>
                 </div>
             </div>
         </div>
@@ -1070,7 +1060,7 @@
 
                 <!-- はるくん -->
                 <div class="dialogue-row right">
-                    <div id="haru-avatar" class="dialogue-avatar" style="
+                    <div class="dialogue-avatar" style="
                         border-color:rgba(30,234,174,0.5);
                         background-image: url('haru.png');
                         background-size: cover;
@@ -1174,13 +1164,11 @@ function setMode(mode) {
     const lvTitle    = document.getElementById('lv-title');
     const trackFill  = document.getElementById('track-fill');
     const ticks      = document.querySelectorAll('#level-ticks span');
-    const charGlow    = document.getElementById('char-glow');
-    const haruHeader  = document.getElementById('haru-header');   // <img> ヘッダー大画像
-    const haruAvatar  = document.getElementById('haru-avatar');   // <div> 会話アイコン（background-image）
-    const sakuraHeader = document.getElementById('sakura-header');
-    const sakuraGlow  = document.getElementById('sakura-glow');
-    const header      = document.getElementById('main-header');
-    const sliderSect  = document.getElementById('slider-section');
+    const charGlow   = document.getElementById('char-glow');
+    const haruHeader = document.getElementById('haru-header');
+    const haruYell   = document.getElementById('haru-yell');
+    const header     = document.getElementById('main-header');
+    const sliderSect = document.getElementById('slider-section');
 
     const titles = {
         1:  "修行の第一歩",
@@ -1221,31 +1209,8 @@ function setMode(mode) {
         10: '#FF7828',
     };
 
-    // さくらじまおの火山グロウカラー（オレンジ〜赤）
-    const sakuraGlowColors = {
-        1:  'rgba(255,160,80,0.25)',  2:  'rgba(255,150,70,0.30)',
-        3:  'rgba(255,140,60,0.35)',  4:  'rgba(255,130,50,0.40)',
-        5:  'rgba(255,120,40,0.45)',  6:  'rgba(255,100,30,0.50)',
-        7:  'rgba(255,80,20,0.55)',   8:  'rgba(255,60,10,0.60)',
-        9:  'rgba(255,40,0,0.65)',    10: 'rgba(255,20,0,0.80)',
-    };
-
-    // はるくんのレベル別CSSフィルター（1=初心者モノクロ → 10=覚醒フルカラー）
-    const haruFilters = {
-        1:  'grayscale(80%) brightness(0.75) contrast(0.9)',
-        2:  'grayscale(65%) brightness(0.80) contrast(0.9)',
-        3:  'grayscale(50%) brightness(0.85) contrast(0.95)',
-        4:  'grayscale(30%) brightness(0.90) saturate(0.9)',
-        5:  'grayscale(10%) brightness(0.95) saturate(1.0)',
-        6:  'grayscale(0%)  brightness(1.00) saturate(1.1)',
-        7:  'grayscale(0%)  brightness(1.05) saturate(1.3) hue-rotate(10deg)',
-        8:  'grayscale(0%)  brightness(1.10) saturate(1.5) hue-rotate(20deg)',
-        9:  'grayscale(0%)  brightness(1.15) saturate(1.7) hue-rotate(35deg)',
-        10: 'grayscale(0%)  brightness(1.25) saturate(2.2) hue-rotate(55deg) contrast(1.1)',
-    };
-
     let prevLv = 1;
-    // animating flag は不要（CSS transition に移行）
+    let animating = false;
 
     function applyLevel(lv, animate) {
         lvNum.textContent  = lv;
@@ -1267,44 +1232,39 @@ function setMode(mode) {
         lvNum.style.textShadow = `0 0 30px ${gc}, 0 0 60px ${gc.replace('0.4','0.2')}`;
         charGlow.style.background = `radial-gradient(ellipse, ${gc} 0%, transparent 70%)`;
 
-        // さくらじまおのグロウ演出（レベルが上がるほど火山が輝く）
-        if (sakuraGlow) {
-            const sgc = sakuraGlowColors[lv];
-            sakuraGlow.style.background = `radial-gradient(ellipse, ${sgc} 0%, transparent 70%)`;
-        }
-        if (sakuraHeader) {
-            const sgc = sakuraGlowColors[lv];
-            const intensity = 8 + lv * 3;
-            sakuraHeader.style.filter = `drop-shadow(0 0 ${intensity}px ${sgc})`;
-            const scaleBoost = lv >= 10 ? 'scale(1.05)' : 'scale(1)';
-            sakuraHeader.style.transform = scaleBoost;
-        }
+        // Image swap with animation
+        if (animate && !animating) {
+            animating = true;
+            const imgs = [haruHeader, haruYell];
 
-        // レベル別CSSフィルターで視覚変化（画像1枚で演出）
-        const baseFilter = haruFilters[lv] || '';
-        const glowPart   = `drop-shadow(0 0 20px ${gc})`;
+            imgs.forEach(img => { img.style.opacity = '0'; img.style.transform = 'scale(0.9)'; });
 
-        if (animate) {
-            // スライダー操作時: 一瞬スケールダウン → 復帰 (バウンス)
-            if (haruHeader) {
-                haruHeader.style.transform = 'scale(0.92)';
-                setTimeout(() => {
-                    if (haruHeader) {
-                        haruHeader.style.filter = `${baseFilter} ${glowPart}`;
-                        haruHeader.style.transform = lv === 10 ? 'scale(1.08)' : 'scale(1)';
-                    }
-                }, 120);
-            }
-        } else {
-            // 初期表示（アニメなし）
-            if (haruHeader) {
-                haruHeader.style.filter = `${baseFilter} ${glowPart}`;
-            }
-        }
-
-        // 会話アイコン（<div>）も同じフィルターを適用
-        if (haruAvatar) {
-            haruAvatar.style.filter = baseFilter;
+            setTimeout(() => {
+                const src = `haru_lv${lv}.png`;
+                let loaded = 0;
+                imgs.forEach(img => {
+                    img.src = src;
+                    img.onload = () => {
+                        img.style.opacity = '1';
+                        img.style.transform = 'scale(1)';
+                        img.style.filter = `drop-shadow(0 0 20px ${gc})`;
+                        loaded++;
+                        if (loaded === imgs.length) animating = false;
+                    };
+                    // Fallback
+                    img.onerror = () => {
+                        img.style.opacity = '1';
+                        img.style.transform = 'scale(1)';
+                        animating = false;
+                    };
+                });
+            }, 180);
+        } else if (!animate) {
+            const src = `haru_lv${lv}.png`;
+            [haruHeader, haruYell].forEach(img => {
+                img.src = src;
+                img.style.filter = `drop-shadow(0 0 20px ${gc})`;
+            });
         }
 
         // Level-up flash on section
