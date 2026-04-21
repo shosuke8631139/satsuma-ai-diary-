@@ -745,6 +745,14 @@
 
 <div class="wrapper">
 
+<!-- ★ card: スクリーンショット範囲ここから ★ -->
+<div class="card" style="
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+">
+
     <!-- ═══════════════════════════════════════
          HEADER
     ═══════════════════════════════════════ -->
@@ -756,10 +764,10 @@
             <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
                 <span class="badge badge-red">
                     <span style="width:6px;height:6px;border-radius:50%;background:#FF6B6B;animation:pulse 1.5s infinite;display:inline-block;"></span>
-                    Episode #2
+                    Episode #{{ episode }}
                 </span>
                 <span class="badge badge-emerald">薩摩AI修行日誌</span>
-                <span class="badge badge-amber" style="margin-left:auto;">2026.04.05 SAT</span>
+                <span class="badge badge-amber" style="margin-left:auto;">{{ date }}</span>
             </div>
 
             <!-- Main content row -->
@@ -777,11 +785,8 @@
                     <p style="font-size:11px;font-weight:900;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:12px;">
                         Satsuma AI Shugyo Nisshi
                     </p>
-                    <h1 style="font-size:clamp(22px,4vw,36px);font-weight:900;color:var(--text-primary);line-height:1.35;margin-bottom:16px;">
-                        「直感」を論理で裏付ける！<br>
-                        <span style="color:var(--emerald);text-shadow:0 0 20px rgba(30,234,174,0.5);">
-                            50万円のボロ戸建て即決修行
-                        </span>
+                    <h1 style="font-size:clamp(22px,4vw,36px);font-weight:900;color:var(--emerald);line-height:1.35;margin-bottom:16px;text-shadow:0 0 20px rgba(30,234,174,0.5);">
+                        {{ title }}
                     </h1>
                     <!-- ★ 今日の一言サマリー -->
                     <div style="
@@ -802,14 +807,12 @@
                             line-height: 1.5;
                             margin: 0;
                         ">
-                            初めて現地内見5分で即決した。直感って経験の積み重ねなんだと気づいた日。
+                            {{ haru_message }}
                         </p>
                     </div>
 
                     <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                        <span class="tag">#不動産</span>
-                        <span class="tag">#AI活用</span>
-                        <span class="tag">#即断力</span>
+                        {% for tool in tools %}<span class="tag">#{{ tool.name }}</span>{% endfor %}
                         <span class="tag">#修行録</span>
                     </div>
                 </div>
@@ -921,7 +924,7 @@
                 </div>
                 <div class="level-meter-wrap" id="track-wrap">
                     <div class="slider-track-fill" id="track-fill" style="width:0%;"></div>
-                    <input type="range" min="1" max="10" value="1" id="level-slider">
+                    <input type="range" min="1" max="10" value="{{ progress_level }}" id="level-slider">
                 </div>
                 <div style="display:flex;justify-content:space-between;margin-top:12px;">
                     <span style="font-size:9px;font-weight:900;letter-spacing:0.12em;color:var(--text-muted);">LV.1 — Tシャツ</span>
@@ -942,165 +945,88 @@
         </div>
 
         <div class="cycle-grid">
-            <!-- Input -->
             <div class="cycle-card">
                 <div class="cycle-icon" style="background:rgba(251,146,60,0.12); border:1px solid rgba(251,146,60,0.2);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FB923C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
+                    <span style="font-size:22px;">🔥</span>
                 </div>
-                <div class="cycle-card-type">Input</div>
-                <div class="cycle-card-title">築60年の物件を内見</div>
-                <div class="cycle-card-sub">水回りと立地のポテンシャルを現地確認</div>
+                <div class="cycle-card-type">Trigger</div>
+                <div class="cycle-card-title">{{ trigger_title }}</div>
+                <div class="cycle-card-sub">{{ trigger_desc }}</div>
             </div>
-
-            <!-- Output -->
             <div class="cycle-card">
                 <div class="cycle-icon" style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                    </svg>
+                    <span style="font-size:22px;">📥</span>
                 </div>
-                <div class="cycle-card-type">Output</div>
-                <div class="cycle-card-title">5分で「買います」連絡</div>
-                <div class="cycle-card-sub">完璧を待たず、機会損失を防ぐ</div>
+                <div class="cycle-card-type">Source</div>
+                <div class="cycle-card-title">{{ source_title }}</div>
+                <div class="cycle-card-sub">{{ source_desc }}</div>
             </div>
-
-            <!-- Insight (ACTIVE) -->
             <div class="cycle-card active">
                 <div class="cycle-icon" style="background:rgba(30,234,174,0.12); border:1px solid rgba(30,234,174,0.3);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1EEAAE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
+                    <span style="font-size:22px;">⚙️</span>
                 </div>
-                <div class="cycle-card-type">Insight ★</div>
-                <div class="cycle-card-title">直感は経験の処理</div>
-                <div class="cycle-card-sub">衝動ではなく、これまでの蓄積が鳴らしたアラート</div>
+                <div class="cycle-card-type">Process ★</div>
+                <div class="cycle-card-title">{{ process_title }}</div>
+                <div class="cycle-card-sub">{{ process_desc }}</div>
             </div>
-
-            <!-- Share -->
             <div class="cycle-card">
                 <div class="cycle-icon" style="background:rgba(250,204,21,0.1); border:1px solid rgba(250,204,21,0.2);">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                    </svg>
+                    <span style="font-size:22px;">📤</span>
                 </div>
-                <div class="cycle-card-type">Share</div>
-                <div class="cycle-card-title">小さく失敗する枠組み</div>
-                <div class="cycle-card-sub">50万なら動ける！プロ不要の第一歩</div>
+                <div class="cycle-card-type">Output</div>
+                <div class="cycle-card-title">{{ output_title }}</div>
+                <div class="cycle-card-sub">{{ output_desc }}</div>
             </div>
         </div>
     </section>
 
 
     <!-- ═══════════════════════════════════════
-         TRAINING LOG
+         TODAY'S LOG
     ═══════════════════════════════════════ -->
-    <section style="margin-bottom:32px;" id="section-log">
+    <section style="margin-bottom:32px;">
         <div class="section-label">
             <span>Training Log / 本日の修行録</span>
         </div>
-
         <div class="glass training-log">
-            <h3>【修行報告】直感が形になる「50万円」の決断力と、完璧主義の排除</h3>
 
-            <p>
-                今日は以前からずっと気になっていた、<strong style="color:var(--emerald);">築60年のボロ戸建て</strong>の現地内見に向かいました。日々の膨大なリサーチを通じて培ってきた相場感から見て、この物件の「50万円」という破格の価格設定には強烈な違和感を感じていました。この違和感こそが「チャンスの匂い」だと判断し、即座に現地へ急行できたのは大きな収穫でした。不動産投資において、スピードは最大の武器になります。
-            </p>
+            <!-- 本文段落 -->
+            {% for para in body_paragraphs %}
+            <p style="
+                font-size: 14px;
+                font-weight: 700;
+                color: rgba(232,245,240,0.85);
+                line-height: 2.0;
+                text-indent: 1em;
+                margin-bottom: 18px;
+            ">{{ para }}</p>
+            {% endfor %}
 
+            <!-- 名言ブロック -->
+            {% if quote %}
             <div class="quote-block">
-                <p>
-                    現場で確認すべきポイントを「水回りの状態」と「立地のポテンシャル」だけに極限まで絞り込むことで、迷いを排除しました。
-                </p>
+                <p>{{ quote }}</p>
             </div>
+            {% endif %}
 
-            <p>
-                結果として、なんと内見開始から<strong style="color:var(--emerald);">わずか5分で「買います」と仲介業者へ即決の連絡</strong>を入れることができました。多くの人は「もう少し条件の良い物件が出るかもしれない」と完璧を求めてしまいがちです。しかし、このスピード決断を生んだのは決して無謀なギャンブルや衝動ではありません。これまでの泥臭い修行と相場観の蓄積が、無意識のうちに脳内でリスク計算を終え、アラートを鳴らした結果なのです。
-            </p>
-
-            <p>
-                プロの投資家ではなくとも、リカバリー可能な「50万円」という絶妙な投資範囲であれば、リスクを取って大胆に動くことができます。完璧を待ち続けて機会損失を出すよりも、最速で打席に立ち、実地の経験から学び続けることの重要性を、今日の実践を通じて深く肌で感じることができました。明日は早速、残置物の撤去作業という新たなトレジャーハントに取り掛かります。
-            </p>
-        </div>
-    </section>
-
-
-    <!-- ═══════════════════════════════════════
-         ARSENAL
-    ═══════════════════════════════════════ -->
-    <section class="arsenal-section" style="margin-bottom:32px;" id="section-arsenal">
-        <div class="section-label">
-            <span>Arsenal / 本日の武器庫</span>
-        </div>
-
-        <div class="glass" style="padding:28px 32px; margin-bottom:16px;">
-            <p style="font-size:9px;font-weight:900;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);">
-                Today's Arsenal
-            </p>
-            <div class="tool-chips">
-                <div class="tool-chip">
-                    <span class="tool-chip-icon">🎙️</span>
-                    <div>
-                        <div class="tool-chip-name">AquaVoice</div>
-                        <div class="tool-chip-sub">音声入力</div>
-                    </div>
+            <!-- 重要ポイント -->
+            <div style="margin-top:24px; padding-top:20px; border-top:1px solid var(--border);">
+                <p style="font-size:10px;font-weight:900;letter-spacing:0.15em;color:var(--emerald);text-transform:uppercase;margin-bottom:14px;">Key Points</p>
+                {% for point in key_points %}
+                <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;">
+                    <span style="
+                        flex-shrink:0;
+                        width:20px;height:20px;
+                        border-radius:50%;
+                        background:var(--emerald-dim);
+                        border:1px solid var(--emerald);
+                        color:var(--emerald);
+                        font-size:10px;font-weight:900;
+                        display:flex;align-items:center;justify-content:center;
+                    ">{{ loop.index }}</span>
+                    <p style="font-size:13px;font-weight:700;color:var(--text-primary);line-height:1.6;margin:0;">{{ point }}</p>
                 </div>
-                <div class="tool-chip">
-                    <span class="tool-chip-icon">🧠</span>
-                    <div>
-                        <div class="tool-chip-name" style="color:#FF6B6B;">Claude Code</div>
-                        <div class="tool-chip-sub">長文生成</div>
-                    </div>
-                </div>
-                <div class="tool-chip">
-                    <span class="tool-chip-icon">✨</span>
-                    <div>
-                        <div class="tool-chip-name" style="color:#60A5FA;">Gemini</div>
-                        <div class="tool-chip-sub">リサーチ支援</div>
-                    </div>
-                </div>
-                <div class="tool-chip">
-                    <span class="tool-chip-icon">⚡</span>
-                    <div>
-                        <div class="tool-chip-name" style="color:#A78BFA;">Cursor</div>
-                        <div class="tool-chip-sub">コード補完</div>
-                    </div>
-                </div>
-                <div class="tool-chip">
-                    <span class="tool-chip-icon">📊</span>
-                    <div>
-                        <div class="tool-chip-name" style="color:#34D399;">GAS</div>
-                        <div class="tool-chip-sub">自動化スクリプト</div>
-                    </div>
-                </div>
-                <div class="tool-chip">
-                    <span class="tool-chip-icon">💰</span>
-                    <div>
-                        <div class="tool-chip-name">50万円の決断力</div>
-                        <div class="tool-chip-sub">リカバリー可能な投資</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                <span class="badge badge-emerald">音声→記事 自動化</span>
-                <span class="badge" style="color:var(--amber);border-color:var(--amber);background:var(--amber-dim);">即断プロトコル</span>
-                <span class="badge" style="color:#A78BFA;border-color:#A78BFA;background:rgba(167,139,250,0.12);">相場感トレーニング</span>
-            </div>
-        </div>
-
-        <div class="strategy-grid">
-            <div class="strategy-card type-ai">
-                <div class="strategy-card-bg">🚀</div>
-                <div class="strategy-type">AI Leverage</div>
-                <div class="strategy-title">音声10分 ⇨ 自動記事化</div>
-                <div class="strategy-sub">圧倒的サボり実現！書く手間をゼロへ。</div>
-            </div>
-            <div class="strategy-card type-next">
-                <div class="strategy-card-bg">🎯</div>
-                <div class="strategy-type">Next Action</div>
-                <div class="strategy-title">残置物トレジャーハント企画</div>
-                <div class="strategy-sub">不用品を地域の価値に変換する！</div>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -1111,32 +1037,44 @@
     ═══════════════════════════════════════ -->
     <section id="section-yell">
         <div class="section-label">
-            <span>エール & 本質 / Yell from Haru-kun</span>
+            <span>エール & 本質 / Haru-kun × Sakurajima-o</span>
         </div>
 
         <div class="glass yell-section">
             <div class="dialogue-wrap">
                 <!-- さくらじまお -->
                 <div class="dialogue-row left">
-                    <div class="dialogue-avatar">
-                        <span class="dialogue-avatar-emoji">🌋</span>
-                    </div>
-                    <div class="dialogue-bubble">
-                        <div class="speaker">さくらじまお</div>
-                        ほう…50万円で動いたんか。修行者よ、ちゃんと「場」に足を運んだのはよかよか。<br>
-                        相場をなめるな、でも怖れすぎるな。それが薩摩の流儀じゃ。
+                    <div class="dialogue-avatar" style="
+                        border-color:rgba(245,166,35,0.5);
+                        background-image: url('sakurajima.png');
+                        background-size: cover;
+                        background-position: center 84%;
+                        background-repeat: no-repeat;
+                    "></div>
+                    <div class="dialogue-bubble" style="border-color:rgba(245,166,35,0.25);background:rgba(245,166,35,0.04);">
+                        <div class="speaker" style="color:var(--amber);">さくらじまお</div>
+                        {{ sakura_message }}
+                        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(245,166,35,0.2);">
+                            <span style="color:var(--amber);font-weight:900;">とりあえず、冷えたさつまいも食っとけ。🍠</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- はるくん -->
                 <div class="dialogue-row right">
-                    <div class="dialogue-avatar" style="border-color:rgba(30,234,174,0.4);">
-                        <img src="haru_lv1.png" id="haru-yell" alt="はるくん" style="width:100%;height:100%;object-fit:cover;transition:opacity 0.25s ease;">
-                    </div>
+                    <div class="dialogue-avatar" style="
+                        border-color:rgba(30,234,174,0.5);
+                        background-image: url('haru.png');
+                        background-size: cover;
+                        background-position: center 84%;
+                        background-repeat: no-repeat;
+                    "></div>
                     <div class="dialogue-bubble" style="border-color:rgba(30,234,174,0.25);background:rgba(30,234,174,0.04);">
                         <div class="speaker" style="color:var(--emerald);">はるくん</div>
-                        完璧を待たずに動き出す勇気が最大の収穫じゃったな！<br>
-                        50万円という絶妙なリスク設定で、まさに不動産修行の第一歩を踏み出せたぜ！
+                        {{ haru_message }}
+                        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(30,234,174,0.2);">
+                            <span style="color:var(--emerald);font-weight:900;">とりあえずスクワットすっど！💪</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1145,18 +1083,21 @@
             <div class="essence-block">
                 <div class="essence-label">Essence of Today — 今日の本質</div>
                 <div class="essence-quote">
-                    「直感」とは、経験の無意識かつ最速の処理である。
+                    {{ today_essence }}
                 </div>
                 <div class="essence-sub">
-                    泥臭いインプットの量が、いざという時の決断スピードに変わる。だから日々学び続けるんじゃな！
+                    {{ today_essence_sub }}
                 </div>
                 <div class="tag-row">
-                    <span class="tag" style="color:var(--emerald);border-color:var(--emerald);">よかよか！</span>
-                    <span class="tag" style="color:var(--emerald);border-color:var(--emerald);">ふんわり♪ フレーフレー♪</span>
+                    <span class="tag" style="color:var(--emerald);border-color:var(--emerald);">やってみんとわからん</span>
+                    <span class="tag" style="color:var(--emerald);border-color:var(--emerald);">ゲーム感覚で修行中</span>
+                    <span class="tag" style="color:var(--amber);border-color:var(--amber);">冷えたさつまいも食っとけ🍠</span>
                 </div>
             </div>
         </div>
     </section>
+
+</div><!-- /card ★ スクリーンショット範囲ここまで ★ -->
 
 </div><!-- /wrapper -->
 
@@ -1345,7 +1286,7 @@ function setMode(mode) {
     });
 
     // Init
-    applyLevel(1, false);
+    applyLevel({{ progress_level }}, false);
 
     // Pulse keyframes for episode badge dot
     const style = document.createElement('style');

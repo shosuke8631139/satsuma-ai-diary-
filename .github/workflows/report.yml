@@ -47,7 +47,12 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           LINE_WEBHOOK_URL:  ${{ secrets.LINE_WEBHOOK_URL }}
         run: |
-          python scripts/generate.py "${{ steps.changed.outputs.file }}"
+          FILE="${{ steps.changed.outputs.file }}"
+          if [ -z "$FILE" ]; then
+            echo "変更された記事ファイルが見つかりませんでした。スキップします。"
+            exit 0
+          fi
+          python scripts/generate.py "$FILE"
 
       # ⑦ 生成した画像をArtifactとして保存（ダウンロード可能にする）
       - name: 生成画像をアップロード
