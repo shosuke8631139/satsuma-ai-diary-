@@ -43,12 +43,17 @@ jobs:
       - name: Playwright Chromium をインストール
         run: playwright install chromium --with-deps
 
+      # ⑤-b surge CLI をインストール
+      - name: surge CLI をインストール
+        run: npm install -g surge
+
       # ⑥ メインスクリプトを実行
       - name: 報告カードを生成
         env:
           GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           LINE_WEBHOOK_URL:  ${{ secrets.LINE_WEBHOOK_URL }}
+          SURGE_TOKEN:       ${{ secrets.SURGE_TOKEN }}
         run: |
           FILE="${{ steps.changed.outputs.file }}"
           if [ -z "$FILE" ]; then

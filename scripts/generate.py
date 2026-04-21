@@ -172,52 +172,37 @@ def capture_screenshot(html_content: str, output_path: Path) -> Path:
 
 
 # ─────────────────────────────────────────
-# Step 4a-pre: 画像をGitHubリポジトリにコミットして公開URLを取得
+# Step 4a-pre: 画像を Surge.sh にデプロイして公開URLを取得
 # ─────────────────────────────────────────
+SURGE_TOKEN = os.environ.get("SURGE_TOKEN", "")
+SURGE_DOMAIN = "satsuma-ai-diary.surge.sh"
+
+
 def upload_image(image_path: Path) -> str:
     """
-    output/ フォルダの画像を git commit & push してから
-    raw.githubusercontent.com の公開URLを返す。
-    外部サービス不要・GitHub が落ちない限り永続的に安定。
+    output/ フォルダの画像を Surge.sh にデプロイして公開URLを返す。
+    SURGE_TOKEN が設定されていれば確実に動作する。
     """
-    try:
-        repo_dir = ROOT_DIR
-        rel_path = image_path.relative_to(repo_dir)
-
-        # git add → commit → push
-        subprocess.run(["git", "config", "user.email", "actions@github.com"], cwd=repo_dir, check=True)
-        subprocess.run(["git", "config", "user.name",  "GitHub Actions"],     cwd=repo_dir, check=True)
-        subprocess.run(["git", "add", str(rel_path)],                         cwd=repo_dir, check=True)
-        result = subprocess.run(
-            ["git", "diff", "--cached", "--quiet"],
-            cwd=repo_dir
-        )
-        if result.returncode != 0:
-            subprocess.run(
-                ["git", "commit", "-m", f"[bot] 報告カード画像を追加: {image_path.name}"],
-                cwd=repo_dir, check=True
-            )
-            subprocess.run(["git", "push"], cwd=repo_dir, check=True)
-            print(f"[OK] GitHubに画像をコミット・プッシュしました")
-
-        # raw.githubusercontent.com のURLを組み立てる
-        remote = subprocess.run(
-            ["git", "remote", "get-url", "origin"],
-            cwd=repo_dir, capture_output=True, text=True
-        ).stdout.strip()
-        # https://github.com/USER/REPO.git → USER/REPO
-        repo_slug = remote.replace("https://github.com/", "").rstrip(".git")
-        branch = subprocess.run(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            cwd=repo_dir, capture_output=True, text=True
-        ).stdout.strip()
-        url = f"https://raw.githubusercontent.com/{repo_slug}/{branch}/{rel_path}"
-        print(f"[OK] 画像URL: {url}")
-        return url
-
-    except Exception as e:
-        print(f"[WARN] GitHub画像アップロード失敗: {e}")
+    if not SURGE_TOKEN:
+        print("[SKIP] SURGE_TOKEN が未設定のため画像アップロードをスキップ")
         return ""
+    try:
+        result = subprocess.run(
+            ["surge", "--project", str(image_path.parent),
+             "--domain", SURGE_DOMAIN,
+             "--token",  SURGE_TOKEN],
+            capture_output=True, text=True, timeout=60
+        )
+        print(f"[surge] stdout: {result.stdout.strip()[-300:]}")
+        if result.returncode == 0:
+            url = f"https://{SURGE_DOMAIN}/{image_path.name}"
+            print(f"[OK] 画像URL: {url}")
+            return url
+        else:
+            print(f"[WARN] surge 失敗: {result.stderr.strip()[-300:]}")
+    except Exception as e:
+        print(f"[WARN] surge 例外: {e}")
+    return ""
 
 
 # ─────────────────────────────────────────
