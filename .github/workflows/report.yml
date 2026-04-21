@@ -1,0 +1,58 @@
+name: 薩摩AI修行日誌 - 自動報告生成
+
+on:
+  push:
+    paths:
+      - "articles/**"   # articlesフォルダへのpushだけを検知
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ① リポジトリをチェックアウト
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2   # 直前のコミットと比較するため2件取得
+
+      # ② 変更されたarticlesファイルを特定
+      - name: 変更された記事ファイルを取得
+        id: changed
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- 'articles/*.md' 'articles/*.html' | head -1)
+          echo "file=$CHANGED" >> $GITHUB_OUTPUT
+          echo "変更ファイル: $CHANGED"
+
+      # ③ Python セットアップ
+      - name: Python 3.11 セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ④ 依存パッケージをインストール
+      - name: 依存パッケージをインストール
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ⑤ Playwright ブラウザをインストール
+      - name: Playwright Chromium をインストール
+        run: playwright install chromium --with-deps
+
+      # ⑥ メインスクリプトを実行
+      - name: 報告カードを生成
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          LINE_WEBHOOK_URL:  ${{ secrets.LINE_WEBHOOK_URL }}
+        run: |
+          python scripts/generate.py "${{ steps.changed.outputs.file }}"
+
+      # ⑦ 生成した画像をArtifactとして保存（ダウンロード可能にする）
+      - name: 生成画像をアップロード
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-image
+          path: output/*.png
+          retention-days: 30
