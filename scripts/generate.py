@@ -171,23 +171,59 @@ def capture_screenshot(html_content: str, output_path: Path) -> Path:
 
 
 # ─────────────────────────────────────────
-# Step 4a-pre: 画像を外部ホスティングにアップロード
+# Step 4a-pre: 画像を外部ホスティングにアップロード（複数サービスにフォールバック）
 # ─────────────────────────────────────────
+def _upload_to_catbox(image_path: Path) -> str:
+    with open(image_path, "rb") as f:
+        resp = requests.post(
+            "https://catbox.moe/user/api.php",
+            data={"reqtype": "fileupload", "userhash": ""},
+            files={"fileToUpload": f},
+            timeout=30
+        )
+    print(f"[catbox] status={resp.status_code} body={resp.text.strip()[:120]}")
+    if resp.status_code == 200 and resp.text.strip().startswith("https://"):
+        return resp.text.strip()
+    return ""
+
+
+def _upload_to_0x0(image_path: Path) -> str:
+    with open(image_path, "rb") as f:
+        resp = requests.post(
+            "https://0x0.st",
+            files={"file": (image_path.name, f, "image/png")},
+            timeout=30
+        )
+    print(f"[0x0.st] status={resp.status_code} body={resp.text.strip()[:120]}")
+    if resp.status_code == 200 and resp.text.strip().startswith("https://"):
+        return resp.text.strip()
+    return ""
+
+
+def _upload_to_transfersh(image_path: Path) -> str:
+    with open(image_path, "rb") as f:
+        resp = requests.put(
+            f"https://transfer.sh/{image_path.name}",
+            data=f,
+            headers={"Max-Downloads": "10", "Max-Days": "3"},
+            timeout=30
+        )
+    print(f"[transfer.sh] status={resp.status_code} body={resp.text.strip()[:120]}")
+    if resp.status_code == 200 and resp.text.strip().startswith("https://"):
+        return resp.text.strip()
+    return ""
+
+
 def upload_image(image_path: Path) -> str:
-    try:
-        with open(image_path, "rb") as f:
-            resp = requests.post(
-                "https://catbox.moe/user/api.php",
-                data={"reqtype": "fileupload", "userhash": ""},
-                files={"fileToUpload": f},
-                timeout=60
-            )
-        if resp.status_code == 200 and resp.text.strip().startswith("https://"):
-            url = resp.text.strip()
-            print(f"[OK] 画像アップロード完了: {url}")
-            return url
-    except Exception as e:
-        print(f"[WARN] 画像アップロード失敗: {e}")
+    for method in [_upload_to_catbox, _upload_to_0x0, _upload_to_transfersh]:
+        try:
+            url = method(image_path)
+            if url:
+                print(f"[OK] 画像アップロード完了: {url}")
+                return url
+        except Exception as e:
+            print(f"[WARN] {method.__name__} 例外: {e}")
+    print("[WARN] 全サービスへのアップロードが失敗しました。テキストのみ送信します。")
     return ""
 
 
