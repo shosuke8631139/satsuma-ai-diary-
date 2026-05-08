@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .env
 template/_tmp_render.html
+template/_tmp_submission_preview.html

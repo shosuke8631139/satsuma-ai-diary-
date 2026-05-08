@@ -776,7 +776,7 @@
                 <div class="character-stage" style="flex-shrink:0;">
                     <div class="character-glow-ring" id="char-glow"></div>
                     <div class="character-img-wrap">
-                        <img src="haru_lv1.png" id="haru-header" alt="はるくん" style="max-width:100%;max-height:200px;object-fit:contain;transition:opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 20px rgba(30,234,174,0.4));position:relative;z-index:1;">
+                        <img src="haru.png" id="haru-header" alt="はるくん" style="max-width:100%;max-height:200px;object-fit:contain;transition:opacity 0.25s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 20px rgba(30,234,174,0.4));position:relative;z-index:1;">
                     </div>
                 </div>
 
@@ -984,7 +984,7 @@
     <!-- ═══════════════════════════════════════
          TODAY'S LOG
     ═══════════════════════════════════════ -->
-    <section style="margin-bottom:32px;">
+    <section style="margin-bottom:32px;" id="section-log">
         <div class="section-label">
             <span>Training Log / 本日の修行録</span>
         </div>
@@ -1236,39 +1236,55 @@ function setMode(mode) {
         lvNum.style.textShadow = `0 0 30px ${gc}, 0 0 60px ${gc.replace('0.4','0.2')}`;
         charGlow.style.background = `radial-gradient(ellipse, ${gc} 0%, transparent 70%)`;
 
+        function applyHaruPortrait(src) {
+            const imgs = [haruHeader, haruYell].filter(Boolean);
+            imgs.forEach(img => {
+                img.onerror = () => {
+                    img.onerror = null;
+                    img.src = 'haru.png';
+                    img.style.opacity = '1';
+                    img.style.transform = 'scale(1)';
+                    img.style.filter = `drop-shadow(0 0 20px ${gc})`;
+                };
+                img.src = src;
+                img.style.filter = `drop-shadow(0 0 20px ${gc})`;
+            });
+        }
+
         // Image swap with animation
         if (animate && !animating) {
             animating = true;
-            const imgs = [haruHeader, haruYell];
+            const imgs = [haruHeader, haruYell].filter(Boolean);
 
             imgs.forEach(img => { img.style.opacity = '0'; img.style.transform = 'scale(0.9)'; });
 
             setTimeout(() => {
                 const src = `haru_lv${lv}.png`;
                 let loaded = 0;
+                const done = () => {
+                    loaded++;
+                    if (loaded >= imgs.length) animating = false;
+                };
                 imgs.forEach(img => {
-                    img.src = src;
                     img.onload = () => {
                         img.style.opacity = '1';
                         img.style.transform = 'scale(1)';
                         img.style.filter = `drop-shadow(0 0 20px ${gc})`;
-                        loaded++;
-                        if (loaded === imgs.length) animating = false;
+                        done();
                     };
-                    // Fallback
                     img.onerror = () => {
+                        img.onerror = null;
+                        img.src = 'haru.png';
                         img.style.opacity = '1';
                         img.style.transform = 'scale(1)';
-                        animating = false;
+                        img.style.filter = `drop-shadow(0 0 20px ${gc})`;
+                        done();
                     };
+                    img.src = src;
                 });
             }, 180);
         } else if (!animate) {
-            const src = `haru_lv${lv}.png`;
-            [haruHeader, haruYell].forEach(img => {
-                img.src = src;
-                img.style.filter = `drop-shadow(0 0 20px ${gc})`;
-            });
+            applyHaruPortrait(`haru_lv${lv}.png`);
         }
 
         // Level-up flash on section
