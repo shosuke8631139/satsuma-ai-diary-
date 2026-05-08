@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="月次課題・報告ツール提出用：流れの図解・画面キャプチャ・工夫したポイント">
+  <title>報告ツール 提出用図解｜薩摩AI修行日誌</title>
+  <style>
+    :root {
+      --bg: #0f1714;
+      --card: #16231e;
+      --border: #2d4a3e;
+      --accent: #4ecdc4;
+      --accent-dim: #2a8a84;
+      --text: #e8f4ef;
+      --text-soft: #9cb8ad;
+      --arrow: #52b788;
+      --box-w: min(100%, 200px);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: min(100%, 820px);
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+    h1 {
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin: 0 0 0.35rem;
+    }
+    .lead {
+      color: var(--text-soft);
+      font-size: 0.95rem;
+      margin: 0 0 1.75rem;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--border);
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.06em;
+    }
+    /* 図解エリア */
+    .diagram {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem 1rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .diagram-title {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0 0 1rem;
+      font-weight: 600;
+    }
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 0.5rem 0.75rem;
+      width: 100%;
+    }
+    .box {
+      width: var(--box-w);
+      min-height: 76px;
+      padding: 0.75rem 0.6rem;
+      background: rgba(78, 205, 196, 0.08);
+      border: 2px solid var(--accent-dim);
+      border-radius: 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .box strong {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+    .box span {
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      line-height: 1.45;
+    }
+    .box.wide {
+      width: min(100%, 420px);
+      background: rgba(82, 183, 136, 0.12);
+      border-color: var(--arrow);
+    }
+    .arrow-down {
+      color: var(--arrow);
+      font-size: 1.35rem;
+      line-height: 1;
+      padding: 0.2rem 0 0.35rem;
+      user-select: none;
+    }
+    .arrow-label {
+      font-size: 0.72rem;
+      color: var(--text-soft);
+      text-align: center;
+      margin: -0.1rem 0 0.15rem;
+      max-width: 280px;
+    }
+    /* 手順リスト */
+    h2 {
+      font-size: 1.05rem;
+      margin: 0 0 0.75rem;
+      color: var(--accent);
+    }
+    ol.steps {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--text);
+    }
+    ol.steps li {
+      margin-bottom: 0.65rem;
+      padding-left: 0.25rem;
+    }
+    ol.steps li::marker {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .note {
+      margin-top: 1.75rem;
+      padding: 1rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: var(--text-soft);
+    }
+    .note strong { color: var(--text); }
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+    /* 提出用：画面キャプチャ */
+    .submission-section {
+      margin-bottom: 2rem;
+    }
+    .submission-section h2 {
+      margin-top: 0;
+    }
+    .screenshot-frame {
+      margin: 0.75rem 0 0;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.2);
+    }
+    .screenshot-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .screenshot-hint {
+      margin: 0.75rem 0 0;
+      padding: 0.85rem 1rem;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      background: rgba(78, 205, 196, 0.06);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-dim);
+    }
+    .screenshot-hint code {
+      font-size: 0.78rem;
+      color: var(--accent);
+      word-break: break-all;
+    }
+    /* 4パーツの表 */
+    .parts-grid {
+      display: grid;
+      gap: 0.65rem;
+      margin: 0.75rem 0 0;
+    }
+    @media (min-width: 560px) {
+      .parts-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .part-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 0.85rem;
+    }
+    .part-card strong {
+      display: block;
+      color: var(--accent);
+      font-size: 0.88rem;
+      margin-bottom: 0.35rem;
+    }
+    .part-card p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+    .bullet-block {
+      margin: 0.5rem 0 0;
+      padding-left: 1.1rem;
+    }
+    .bullet-block li {
+      margin-bottom: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+    .bullet-block li strong {
+      color: var(--text);
+    }
+    @media print {
+      body { background: #fff; color: #222; }
+      .diagram { border-color: #ccc; }
+      .box { border-color: #888; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">提出・共有用 図解ページ</span>
+    <h1>自動報告ツールのしくみ</h1>
+    <p class="lead">文章で日報を書くと、自動で「見やすいカード画像」ができて Slack に届くまでの流れです。スクールの<strong>月次課題（報告ツール）</strong>向けに、画面キャプチャ欄と工夫の説明もこのページにまとめています。</p>
+
+    <div class="diagram" role="img" aria-label="自動報告ツールの流れの図解">
+      <p class="diagram-title">▼ ぜんたいの流れ（上から下へ読む）▼</p>
+      <div class="flow">
+        <div class="row">
+          <div class="box">
+            <strong>① 記事を書く</strong>
+            <span>パソコンで Markdown（日報の文章）を書きます</span>
+          </div>
+        </div>
+        <div class="arrow-down" aria-hidden="true">↓</div>
+        <p class="arrow-label">インターネット上の「提出ボックス」に送るイメージ</p>
+        <div class="row">
+          <div class="box">
+            <strong>② GitHub に送る</strong>
+            <span>保存して送る（push）と、自動のスイッチが入ります</span>
+          </div>
+        </div>
+        <div class="arrow-down" aria-hidden="true">↓</div>
+        <div class="row">
+          <div class="box wide">
+            <strong>③ クラウドで自動処理</strong>
+            <span>GitHub Actions が動き、AI が文章を整理 → デザイン用 HTML に入れる → ブラウザの真似をしてカード画像（PNG）を撮ります</span>
+          </div>
+        </div>
+        <div class="arrow-down" aria-hidden="true">↓</div>
+        <div class="row">
+          <div class="box">
+            <strong>④ Slack に届く</strong>
+            <span>できあがった画像が、チームのチャンネルに通知されます</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="submission-section" aria-labelledby="sec-screenshot">
+      <h2 id="sec-screenshot">報告ツールの画面（スクリーンショット）</h2>
+      <p style="font-size:0.88rem;color:var(--text-soft);margin:0 0 0.5rem;">提出要件①：実際のツール画面の画像を下に貼ります。</p>
+      <div class="screenshot-frame">
+        <img src="submission-screenshot.png" alt="報告ツールの画面キャプチャ（生成された報告カード・Slack通知・または説明用ランディングページなど）">
+      </div>
+      <p class="screenshot-hint">
+        <strong style="color:var(--text);">画像が表示されないとき：</strong>
+        この HTML と同じ <code>docs</code> フォルダに、スクショ画像を <code>submission-screenshot.png</code> という名前で保存して GitHub に push してください。ファイル名を変える場合は、このページの <code>img</code> の <code>src</code> を編集します。
+      </p>
+    </section>
+
+    <section class="submission-section" aria-labelledby="sec-kufuu">
+      <h2 id="sec-kufuu">工夫したポイント（提出要件②）</h2>
+      <p style="font-size:0.88rem;color:var(--text-soft);margin:0 0 0.75rem;">4つのパーツの決め方・デザイン・課題と解決を、ツールの設計に沿って整理しています。言い回しはご自身の体験に合わせて書き換えて問題ありません。</p>
+
+      <h3 style="font-size:0.95rem;color:var(--text);margin:1rem 0 0.35rem;font-weight:700;">4つのパーツ（Trigger / Source / Process / Output）の決め方</h3>
+      <div class="parts-grid">
+        <div class="part-card">
+          <strong>Trigger（きっかけ）</strong>
+          <p><code>articles/</code> 配下の記事を書いて GitHub に push した瞬間にだけ処理が走るようにした。手動ボタンや別サービスに依存せず、「日報を届けたら報告が完了する」一連の流れに寄せた。</p>
+        </div>
+        <div class="part-card">
+          <strong>Source（素材）</strong>
+          <p>素材はプレーンな Markdown の記事本文に限定。フォーム入力ではなく「自分の言葉で書いた長文」をそのままソースにすることで、発信のハードルを下げつつ中身の厚みは保てるようにした。</p>
+        </div>
+        <div class="part-card">
+          <strong>Process（処理）</strong>
+          <p>クラウド上で Gemini が構造化データを抽出 → Jinja2 で HTML テンプレートへ注入 → Playwright がカード部分を PNG で撮影、という三段に分けた。人間がレイアウト調整しなくても毎回同じ体裁になる。</p>
+        </div>
+        <div class="part-card">
+          <strong>Output（届け先）</strong>
+          <p>チームの Slack チャンネルへ Incoming Webhook で通知。テキストの要約ブロックに加え、カード画像も見せられるようにして、スクロールしなくても「今日の一行」が伝わるようにした。</p>
+        </div>
+      </div>
+
+      <h3 style="font-size:0.95rem;color:var(--text);margin:1.25rem 0 0.35rem;font-weight:700;">デザインの工夫</h3>
+      <ul class="bullet-block">
+        <li><strong>報告カード：</strong>ダークグリーン×エメラルド系で統一し、進捗バーや4ステップ（きっかけ→素材→処理→アウトプット）が一目で追えるカード型 UI にした。</li>
+        <li><strong>キャラクター：</strong>はるくん・さくらじまおのセリフをテンプレートと AI 生成で両立させ、読み物としての温度感と「報告」としての型を両立させた。</li>
+        <li><strong>この図解ページ：</strong>提出先が URL 一つで済むよう、流れ図・キャプチャ・説明文を単一 HTML に集約し、スマホでも読める幅（最大 720px）にした。</li>
+      </ul>
+
+      <h3 style="font-size:0.95rem;color:var(--text);margin:1.25rem 0 0.35rem;font-weight:700;">ぶつかった課題と解決</h3>
+      <ul class="bullet-block">
+        <li><strong>課題：</strong>Slack の Block Kit では、画像ブロックに<strong>インターネット上の公開 URL</strong>が必要で、Actions の実行環境だけに保存した PNG をそのままは貼れない。<strong>解決：</strong>生成 PNG を一時的に外部ホストにアップロードし、返ってきた HTTPS URL を Slack に渡すようにした。</li>
+        <li><strong>課題：</strong>記事ごとに項目がバラバラになりがち。<strong>解決：</strong>Gemini に JSON スキーマに近い指示を固定し、毎回同じキー（進捗・4サイクル・ツール一覧など）でテンプレへ流し込めるようにした。</li>
+        <li><strong>課題：</strong>CI 上でブラウザ相当の描画が必要。<strong>解決：</strong>Playwright の Chromium を Actions でインストールし、テンプレートをファイルとして開いてから要素単位でスクリーンショットする。</li>
+      </ul>
+    </section>
+
+    <h2>用語をやさしく言い換えると</h2>
+    <ol class="steps">
+      <li><strong>GitHub</strong> … プログラムと文章を置いておく「ネット上の作業場」</li>
+      <li><strong>GitHub Actions</strong> … 「送ったら自動でやることリスト」を動かす仕組み</li>
+      <li><strong>Slack</strong> … チームで話すチャット（届け先）</li>
+    </ol>
+
+    <div class="note">
+      <strong>このURLを出すには：</strong> GitHub のリポジトリで Pages をオンにして、公開フォルダを <code style="color:var(--accent)">/docs</code> にすると、ブラウザ用の固定URLがもらえます。（リポジトリの Settings → Pages）
+    </div>
+
+    <footer>薩摩AI修行日誌・自動報告ツール｜図解ページ</footer>
+  </div>
+</body>
+</html>

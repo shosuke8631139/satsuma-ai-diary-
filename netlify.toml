@@ -1,0 +1,4 @@
+# 提出用図解は docs/index.html。
+# Netlify: リポジトリを連携し、「Publish directory」を docs に設定（このファイルでも同じ指定）。
+[build]
+  publish = "docs"
